@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="zh-cn" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>DRAM的整体架构（简单翻译） | 从蓉的博客</title><meta name="author" content="从蓉"><meta name="copyright" content="从蓉"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="参考文章，进行一个简单的翻译 同时，更多的参考了2008年出版的Memory System的第十章内容。 目前使用DRAM的基本架构为Processor &lt;&#x3D;&gt; Memory Controller &lt;&#x3D;&gt; DRAM。 其中DRAM中包含了Channel &#x3D;&gt; Rank &#x3D;&gt; Chip &#x3D;&gt; Bank &#x3D;&gt; Subarray &#x3D;&gt; Mat &#x3D;&amp;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DRAM的整体架构（简单翻译）">
+<meta property="og:url" content="https://ccccrrrr.github.io/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="参考文章，进行一个简单的翻译 同时，更多的参考了2008年出版的Memory System的第十章内容。 目前使用DRAM的基本架构为Processor &lt;&#x3D;&gt; Memory Controller &lt;&#x3D;&gt; DRAM。 其中DRAM中包含了Channel &#x3D;&gt; Rank &#x3D;&gt; Chip &#x3D;&gt; Bank &#x3D;&gt; Subarray &#x3D;&gt; Mat &#x3D;&amp;g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-12-22T06:28:21.000Z">
+<meta property="article:modified_time" content="2022-12-22T06:28:21.573Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="DRAM">
+<meta property="article:tag" content="memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ccccrrrr.github.io/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DRAM的整体架构（简单翻译）',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-12-22 14:28:21'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/grass.jpeg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">32</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">33</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">18</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">从蓉的博客</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">DRAM的整体架构（简单翻译）</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-12-22T06:28:21.000Z" title="Created 2022-12-22 14:28:21">2022-12-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-12-22T06:28:21.573Z" title="Updated 2022-12-22 14:28:21">2022-12-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="DRAM的整体架构（简单翻译）"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><a target="_blank" rel="noopener" href="https://hackmd.io/@WeiCheng14159/SyW1xGBId">参考文章</a>，进行一个简单的翻译</p>
+<p>同时，更多的参考了2008年出版的Memory System的第十章内容。</p>
+<p>目前使用DRAM的基本架构为Processor &lt;=&gt; Memory Controller &lt;=&gt; DRAM。</p>
+<p>其中DRAM中包含了Channel =&gt; Rank =&gt; Chip =&gt; Bank =&gt; Subarray =&gt; Mat =&gt; Row, Column =&gt; Cell，下面介绍这些术语具体含义。</p>
+<h2 id="channel">Channel</h2>
+<blockquote>
+<p>A channel is the <strong>collection of all banks</strong> that share <strong>a common physical link</strong> (command, address, data buses) to the processor.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/GBilDndh2HE96YW.png" alt="image.png" style="zoom: 67%;" />
+<p>在上图中，可以看到第一种设计只有一个channel。第二种和第三种设计，一个Memory Controller有两个通道，这两个通道协同运行。这种channel被称为物理通道。</p>
+<p>而下图则是逻辑上的通道，使用了多个内存控制器进行实现。</p>
+<img src="https://s2.loli.net/2022/12/22/E9xmkepz5HbZi7D.png" alt="image.png" style="zoom:67%;" />
+<p>书中、博客中对于通道并没有非常明确的定义。但在研究过程中，我认为第一种情况更常出现。多控制器似乎并不在考虑范围之内。</p>
+<h2 id="rank">Rank</h2>
+<p>Rank代表了一组DRAM设备，这些设备会同时工作相应一个给定的指令。</p>
+<img src="/Users/ccrr/Library/Application Support/typora-user-images/image-20221222105415750.png" alt="image-20221222105415750" style="zoom: 67%;" />
+<p>上图中给出了一个简单的内存拓扑图，其中有两个rank，每个rank中有4个DRAM device。address和command线路连接了每一个设备。在该设计中使用chip-select来选择对应的rank来处理指令。而data bus被分隔成了4部分，分别连接不同的DRAM设备。</p>
+<p>那么显然，这里提到的DRAM device和chip两个术语是对应的。</p>
+<h2 id="bank">Bank</h2>
+<p>bank是一系列在DRAM设备内部的独立内存阵列的集合。</p>
+<img src="https://s2.loli.net/2022/12/22/6qchDSWQlZLbAzC.png" alt="image.png" style="zoom:67%;" />
+<p>在这个内存设备中，有4个bank，每个bank都有非常多的DRAM阵列。</p>
+<blockquote>
+<p>the multi-bank architecture allows commands such as read requests to different banks to be pipelined. Certain commands, such as refresh commands, can also be engaged in multiple banks in parallel.</p>
+</blockquote>
+<p>可以认为，multi-bank的设计能够更大程度的促进设备的并行性。</p>
+<h2 id="dram-subarray-array">DRAM Subarray（Array）</h2>
+<p>其中，一个bank还会呗分成非常多的tile。一整行的tile就被称为一个subarray。而所有的subarray加起来就是DRAM array。</p>
+<img src="https://s2.loli.net/2022/12/22/7HF3z5RGOeJaM1I.png" alt="image.png" style="zoom:67%;" />
+<h2 id="row">Row</h2>
+<blockquote>
+<p>a <em>row</em> is simply a group of stor- age cells that are activated in parallel in response to a row activation command.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/5lZtc6WkpgzyNDI.png" alt="image.png" style="zoom:67%;" />
+<p>在一个rank中包含了4个bank，</p>
+<h2 id="column">Column</h2>
+<p>Column of data is the smallest addressable unit of memory.</p>
+<blockquote>
+<p>The size of a column of data is the same as the width of the data bus.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/vYngWu4xR3HqjT8.png" alt="image.png" style="zoom:67%;" />
+<p>对于subarray，row，column来说，可以用博客中的一张图进行理解（由于书本中并没有提及subarray，我也无法了解更多关于它的定义。）</p>
+<p><img src="https://s2.loli.net/2022/12/22/qyN8DWbRG4J32MX.png" alt="image.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="https://ccccrrrr.github.io">从蓉</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://ccccrrrr.github.io/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/">https://ccccrrrr.github.io/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/DRAM/">DRAM</a><a class="post-meta__tags" href="/tags/memory/">memory</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/12/20/docker%E5%AD%A6%E4%B9%A0/"><img class="next-cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">docker学习</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/grass.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">从蓉</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">32</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">33</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">18</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/ccccrrrr" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zcr1006@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#channel"><span class="toc-number">1.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rank"><span class="toc-number">2.</span> <span class="toc-text">Rank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bank"><span class="toc-number">3.</span> <span class="toc-text">Bank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dram-subarray-array"><span class="toc-number">4.</span> <span class="toc-text">DRAM Subarray（Array）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#row"><span class="toc-number">5.</span> <span class="toc-text">Row</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#column"><span class="toc-number">6.</span> <span class="toc-text">Column</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/" title="DRAM的整体架构（简单翻译）"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DRAM的整体架构（简单翻译）"/></a><div class="content"><a class="title" href="/2022/12/22/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/" title="DRAM的整体架构（简单翻译）">DRAM的整体架构（简单翻译）</a><time datetime="2022-12-22T06:28:21.000Z" title="Created 2022-12-22 14:28:21">2022-12-22</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/20/docker%E5%AD%A6%E4%B9%A0/" title="docker学习"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="docker学习"/></a><div class="content"><a class="title" href="/2022/12/20/docker%E5%AD%A6%E4%B9%A0/" title="docker学习">docker学习</a><time datetime="2022-12-20T10:47:36.000Z" title="Created 2022-12-20 18:47:36">2022-12-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/20/gem5%E4%B8%8Envmain%E7%9A%84%E9%9B%86%E6%88%90/" title="gem5与nvmain的集成"><img src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="gem5与nvmain的集成"/></a><div class="content"><a class="title" href="/2022/12/20/gem5%E4%B8%8Envmain%E7%9A%84%E9%9B%86%E6%88%90/" title="gem5与nvmain的集成">gem5与nvmain的集成</a><time datetime="2022-12-20T10:43:34.000Z" title="Created 2022-12-20 18:43:34">2022-12-20</time></div></div><div class="aside-list-item"><div class="content"><a class="title" href="/2022/09/11/%E6%8A%BD%E8%B1%A1%E6%84%9F%E6%83%B3/" title="抽象感想">抽象感想</a><time datetime="2022-09-11T05:00:54.000Z" title="Created 2022-09-11 13:00:54">2022-09-11</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/09/09/SSD-OCSSD-ZNS/" title="SSD-OCSSD-ZNS"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SSD-OCSSD-ZNS"/></a><div class="content"><a class="title" href="/2022/09/09/SSD-OCSSD-ZNS/" title="SSD-OCSSD-ZNS">SSD-OCSSD-ZNS</a><time datetime="2022-09-09T09:18:59.000Z" title="Created 2022-09-09 17:18:59">2022-09-09</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By 从蓉</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Toggle Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js"></script><script>(() => {
+  document.querySelectorAll('#article-container span.katex-display').forEach(item => {
+    btf.wrap(item, 'div', { class: 'katex-wrap'})
+  })
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
