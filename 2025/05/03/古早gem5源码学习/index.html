@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="主要是关于gem5的内存部分的学习记录，记录比较粗糙，请勿在意。 MemoryObject继承了ClockedObject，ClockedObject继承了SimObject。SimObject是最上层的抽象类，可以代表所有的物理部件，并且可以通过配置文件进行配置。  SimObject initialization is controlled by the instantiate method">
+<meta property="og:type" content="article">
+<meta property="og:title" content="古早gem5源码学习">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="主要是关于gem5的内存部分的学习记录，记录比较粗糙，请勿在意。 MemoryObject继承了ClockedObject，ClockedObject继承了SimObject。SimObject是最上层的抽象类，可以代表所有的物理部件，并且可以通过配置文件进行配置。  SimObject initialization is controlled by the instantiate method">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-03T05:56:14.000Z">
+<meta property="article:modified_time" content="2025-05-03T06:01:49.382Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="gem5">
+<meta property="article:tag" content="NVM-Simulator">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>古早gem5源码学习</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/05/03/round126-div2/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/05/03/scons%E5%AD%A6%E4%B9%A0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&text=古早gem5源码学习"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&is_video=false&description=古早gem5源码学习"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=古早gem5源码学习&body=Check out this article: https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&name=古早gem5源码学习&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&t=古早gem5源码学习"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Full-System%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">Full System架构解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%B3%BB%E7%BB%9F%E5%88%9B%E5%BB%BA"><span class="toc-number">1.1.</span> <span class="toc-text">内存系统创建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dev%E7%9A%84x86%E8%A7%A3%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">dev的x86解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gem5%E7%9A%84HMC%E9%83%A8%E5%88%86"><span class="toc-number">3.</span> <span class="toc-text">gem5的HMC部分</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        古早gem5源码学习
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-05-03T05:56:14.000Z" class="dt-published" itemprop="datePublished">2025-05-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/gem5%E5%AD%A6%E4%B9%A0/">gem5学习</a> › <a class="category-link" href="/categories/gem5%E5%AD%A6%E4%B9%A0/%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">源码学习笔记</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/NVM-Simulator/" rel="tag">NVM-Simulator</a>, <a class="p-category" href="/tags/gem5/" rel="tag">gem5</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>主要是关于gem5的内存部分的学习记录，记录比较粗糙，请勿在意。</p>
+<p><code>MemoryObject</code>继承了<code>ClockedObject</code>，<code>ClockedObject</code>继承了<code>SimObject</code>。<code>SimObject</code>是最上层的抽象类，可以代表所有的物理部件，并且可以通过配置文件进行配置。</p>
+<blockquote>
+<p>SimObject initialization is controlled by the instantiate method in src&#x2F;python&#x2F;m5&#x2F;simulate.py. There are slightly different initialization paths when starting the simulation afresh and when loading from a checkpoint.  After instantiation and connecting ports, simulate.py initializes the object using the following call sequence:</p>
+<ol>
+<li>SimObject::init()
+<li>SimObject::regStats()
+<li><ul>
+<li>SimObject::initState() if starting afresh.
+<li>SimObject::loadState() if restoring from a checkpoint.
+</ul>
+<li>SimObject::resetStats()
+<li>SimObject::startup()
+<li>Drainable::drainResume() if resuming from a checkpoint.
+</ol>
+</blockquote>
+<p><code>ClockedObject</code>增加了时钟和与计时有关的继承函数，能够记录对象的周期。</p>
+<p>而<code>MemObject</code>则是一个提供了获取<code>master</code>和<code>slave</code>端口的，同时有时钟周期的对象。当然，<code>MemObject</code>本身就是一个非常抽象的类，不能够直接使用。</p>
+<p><code>AbstractMemory</code>继承了<code>MemObject</code>，它是不同内存实现的最近的父类。它代表了连续的物理内存快，有相关联的地址范围，提供了基本的读写内存功能。它至少有一个<code>slave</code>端口。其中有两个获取内存的方法，一个是<code>access</code>一个是<code>functionalAccess</code>，前者需要根据对应的地址更新内存的状态，后者并不会改变内存本身，同时也不会统计这一方法的数据。显然，<code>access</code>是更为复杂的方法。下面介绍<code>access</code>的基本思路：</p>
+<ol>
+<li><code>access</code>传入一个类型为<code>PacketPtr</code>的数据包指针，里面包含了所有必须的请求内容。</li>
+<li>检查该请求作用的地址范围是否是该内存的子集。</li>
+<li>检查该数据包的<code>MEM_INHIBIT</code>位是否为1，若为0，则无法使用<code>access</code>方法进行操作。</li>
+<li><code>hostAddr</code>计算了需要作用内存的物理地址。</li>
+<li>数据包可能有四种情况，其中三种情况是有效的：<ol>
+<li>若请求数据包的类型是<code>MemCmd::SwapReq</code>，一个数据交换的请求。将对应物理地址储存的数据放入数据包中，将数据包中储存的数据放入临时变量<code>overwrite_val</code>中。在交换数据中，还有两种区别。一种是直接交换，一种是如果内存对应位置的数据如果和<code>condition_val</code>相同，才进行交换。交换操作结束后，会检查该请求不是获取指令的请求。并根据请求的<code>masterId</code>将<code>numOther</code>对应的计数器自增1。</li>
+<li>若请求数据包的类型是读请求，首先判断该请求不是写请求。若该数据包是LLSC类型的，还需要调用<code>trackLoadLocked</code>方法，将该请求加入<code>lockedAddrList</code>中。然后将对应地址储存的数据写入数据包中，将<code>numReads</code>对应的<code>masterId</code>自增1，并记录读取的字节数。如果是获取指令的请求，还需要增加获取指令的字节数。</li>
+<li>如果请求数据包是写请求，首先查看是否可以进行写操作（该请求是否在<code>lockedAddrList</code>中，如果在列表中是否又能写入），写入完成后再进行同上的数据记录。</li>
+</ol>
+</li>
+<li>如果这个数据包需要回复，那么还需要填入回复数据的内容。</li>
+</ol>
+<p>现在，这一部分的内容即将丢弃！</p>
+<h2 id="Full-System架构解析"><a href="#Full-System架构解析" class="headerlink" title="Full System架构解析"></a>Full System架构解析</h2><p>我即将开始阅读fs.py的代码！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Add options</span></span><br><span class="line">parser = optparse.OptionParser()</span><br><span class="line">Options.addCommonOptions(parser)</span><br><span class="line">Options.addFSOptions(parser)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Add the ruby specific and protocol specific options</span></span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;--ruby&#x27;</span> <span class="keyword">in</span> sys.argv:</span><br><span class="line">    Ruby.define_options(parser)</span><br><span class="line">    </span><br><span class="line">(options, args) = parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> args:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Error: script doesn&#x27;t take any positional arguments&quot;</span>)</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>创建了一个parser类，添加了gem5基本的配置以及FS模式下配置的所有选项。如果在构建系统时需要使用ruby，还需要在Ruby类中添加预定义的选项。然后使用<code>parse_args</code>方法返回对应的options和args。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># system under test can be any CPU</span></span><br><span class="line">(TestCPUClass, test_mem_mode, FutureClass) = Simulation.setCPUClass(options)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Match the memories with the CPUs, based on the options for the test system</span></span><br><span class="line">TestMemClass = Simulation.setMemClass(options)</span><br></pre></td></tr></table></figure>
+
+<p><code>setCPUClass</code>会返回两个CPU类型，一个是TestCPUClass，一个是FutureClass。如果在options中有设置了<code>checkpoint_restore</code>或者<code>fast_forward</code>，会将options中指定的<code>cpu_type</code>存入<code>FutureClass</code>中，<code>TestCPUClass</code>为对应的选项指定的类型。一般情况下，<code>test_mem_mode</code>的类型与<code>TestCPUClass</code>相对应。</p>
+<p><code>setMemClass</code>返回了一个内存控制器类型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> options.benchmark:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        bm = Benchmarks[options.benchmark]</span><br><span class="line">    <span class="keyword">except</span> KeyError:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Error benchmark %s has not been defined.&quot;</span> % options.benchmark)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Valid benchmarks are: %s&quot;</span> % DefinedBenchmarks)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">if</span> options.dual:</span><br><span class="line">        bm = [SysConfig(disks=options.disk_image, rootdev=options.root_device,</span><br><span class="line">                        mem=options.mem_size, os_type=options.os_type),</span><br><span class="line">              SysConfig(disks=options.disk_image, rootdev=options.root_device,</span><br><span class="line">                        mem=options.mem_size, os_type=options.os_type)]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        bm = [SysConfig(disks=options.disk_image, rootdev=options.root_device,</span><br><span class="line">                        mem=options.mem_size, os_type=options.os_type)]</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>options</code>中带有<code>benchmark</code>，则寻找对应的测试。如果没有指定，那么直接创建默认的benchmark。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">np = options.num_cpus</span><br><span class="line"></span><br><span class="line">test_sys = build_test_system(np)</span><br></pre></td></tr></table></figure>
+
+<p>根据指定的cpu数量创建对应的测试系统。</p>
+<p>下面介绍<code>build_test_system</code>函数。它根据<code>options</code>构建了对应的测试系统。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_test_system</span>(<span class="params">np</span>):</span><br><span class="line">    cmdline = cmd_line_template()</span><br><span class="line">    <span class="keyword">if</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;mips&quot;</span>:</span><br><span class="line">        test_sys = makeLinuxMipsSystem(test_mem_mode, bm[<span class="number">0</span>], cmdline=cmdline)</span><br><span class="line">    <span class="keyword">elif</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;sparc&quot;</span>:</span><br><span class="line">        test_sys = makeSparcSystem(test_mem_mode, bm[<span class="number">0</span>], cmdline=cmdline)</span><br><span class="line">    <span class="keyword">elif</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;riscv&quot;</span>:</span><br><span class="line">        test_sys = makeBareMetalRiscvSystem(test_mem_mode, bm[<span class="number">0</span>],</span><br><span class="line">                                            cmdline=cmdline)</span><br><span class="line">    <span class="keyword">elif</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;x86&quot;</span>:</span><br><span class="line">        test_sys = makeLinuxX86System(test_mem_mode, np, bm[<span class="number">0</span>], options.ruby,</span><br><span class="line">                                      cmdline=cmdline)</span><br><span class="line">    <span class="keyword">elif</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&quot;arm&quot;</span>:</span><br><span class="line">        test_sys = makeArmSystem(</span><br><span class="line">            test_mem_mode,</span><br><span class="line">            options.machine_type,</span><br><span class="line">            np,</span><br><span class="line">            bm[<span class="number">0</span>],</span><br><span class="line">            options.dtb_filename,</span><br><span class="line">            bare_metal=options.bare_metal,</span><br><span class="line">            cmdline=cmdline,</span><br><span class="line">            external_memory=options.external_memory_system,</span><br><span class="line">            ruby=options.ruby,</span><br><span class="line">            security=options.enable_security_extensions,</span><br><span class="line">            vio_9p=options.vio_9p,</span><br><span class="line">            bootloader=options.bootloader,</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">if</span> options.enable_context_switch_stats_dump:</span><br><span class="line">            test_sys.enable_context_switch_stats_dump = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        fatal(<span class="string">&quot;Incapable of building %s full system!&quot;</span>, buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>])</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>首先，根据<code>buildEnv</code>构建指定的架构系统。由于我需要构建的是x86系统，所以再来查看<code>makeLinuxX86System</code>函数。由于在<code>makeLinuxX86System</code>中首先调用了<code>makeX86System</code>，所以首先先介绍该函数。由于在调用该函数时，<code>workload</code>指定为由<code>x86FSLinux</code>产生的，如果workload为空，则直接使用<code>X86FSWorkload</code>生成；如果<code>mdesc</code>为空，那么调用<code>SysConfig</code>构建基本的系统配置（当然在full system的设置中已经指定好了系统配置）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">makeX86System</span>(<span class="params">mem_mode, numCPUs=<span class="number">1</span>, mdesc=<span class="literal">None</span>, workload=<span class="literal">None</span>, Ruby=<span class="literal">False</span></span>):</span><br><span class="line">    self = System()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> workload <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        workload = X86FsWorkload()</span><br><span class="line">    self.workload = workload</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> mdesc:</span><br><span class="line">        <span class="comment"># generic system</span></span><br><span class="line">        mdesc = SysConfig()</span><br><span class="line">    self.readfile = mdesc.script()</span><br><span class="line"></span><br><span class="line">    self.mem_mode = mem_mode</span><br></pre></td></tr></table></figure>
+
+<p>由于在X86平台上内存的[0xC0000000, 0xFFFFFFFF]区间将会预留给设备使用，因此当物理内存大于3GB时，将会将物理内存氛围两部分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Physical memory</span></span><br><span class="line"><span class="comment"># On the PC platform, the memory region 0xC0000000-0xFFFFFFFF is reserved</span></span><br><span class="line"><span class="comment"># for various devices.  Hence, if the physical memory size is greater than</span></span><br><span class="line"><span class="comment"># 3GB, we need to split it into two parts.</span></span><br><span class="line">excess_mem_size = \</span><br><span class="line">    convert.toMemorySize(mdesc.mem()) - convert.toMemorySize(<span class="string">&#x27;3GB&#x27;</span>)</span><br><span class="line"><span class="keyword">if</span> excess_mem_size &lt;= <span class="number">0</span>:</span><br><span class="line">    self.mem_ranges = [AddrRange(mdesc.mem())]</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    warn(<span class="string">&quot;Physical memory size specified is %s which is greater than &quot;</span> \</span><br><span class="line">         <span class="string">&quot;3GB.  Twice the number of memory controllers would be &quot;</span> \</span><br><span class="line">         <span class="string">&quot;created.&quot;</span>  % (mdesc.mem()))</span><br><span class="line"></span><br><span class="line">    self.mem_ranges = [AddrRange(<span class="string">&#x27;3GB&#x27;</span>),</span><br><span class="line">        AddrRange(Addr(<span class="string">&#x27;4GB&#x27;</span>), size = excess_mem_size)]</span><br></pre></td></tr></table></figure>
+
+<p>Pc()是在x86架构中platform，其中包含了指向系统的指针，以及一个南桥指针。顺带一提，在src&#x2F;dev&#x2F;x86中有x86必要的几个芯片实现。南桥模块将这些芯片连接起来。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Platform</span></span><br><span class="line">self.pc = Pc()</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="内存系统创建"><a href="#内存系统创建" class="headerlink" title="内存系统创建"></a>内存系统创建</h3><p>然后如果设置了Ruby，则会创建带有Ruby的X86内存系统。如果没有设置，就会创建传统的X86内存系统。这里首先来看传统内存系统。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Create and connect the busses required by each memory system</span></span><br><span class="line"><span class="keyword">if</span> Ruby:</span><br><span class="line">    connectX86RubySystem(self)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    connectX86ClassicSystem(self, numCPUs)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>可以看到一个基本X86系统的大致架构。IO地址空间从0x8000000000000000起，pci配置地址空间由0xc000000000000000起，中断地址空间由0xa000000000000000起。然后创建有关x86系统的内存总线。</p>
+<p>总结一下，数据信息的传输过程是membus-&gt;bridge-&gt;ious,iobus的master（mem_side_ports）端口与很多设备相连，同时也会定了bridge能够接受的地址范围。然后又在系统中创建了apicbrige，支持数据从iobus-&gt;apicbridge-&gt;membus的流程，该桥只能支持中断基地址到cpu数乘APIC范围的支持。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">connectX86ClassicSystem</span>(<span class="params">x86_sys, numCPUs</span>):</span><br><span class="line">    <span class="comment"># Constants similar to x86_traits.hh</span></span><br><span class="line">    IO_address_space_base = <span class="number">0x8000000000000000</span></span><br><span class="line">    pci_config_address_space_base = <span class="number">0xc000000000000000</span></span><br><span class="line">    interrupts_address_space_base = <span class="number">0xa000000000000000</span></span><br><span class="line">    APIC_range_size = <span class="number">1</span> &lt;&lt; <span class="number">12</span>;</span><br><span class="line"></span><br><span class="line">    x86_sys.membus = MemBus()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># North Bridge</span></span><br><span class="line">    x86_sys.iobus = IOXBar()</span><br><span class="line">    x86_sys.bridge = Bridge(delay=<span class="string">&#x27;50ns&#x27;</span>)</span><br><span class="line">    x86_sys.bridge.mem_side_port = x86_sys.iobus.cpu_side_ports</span><br><span class="line">    x86_sys.bridge.cpu_side_port = x86_sys.membus.mem_side_ports</span><br><span class="line">    <span class="comment"># Allow the bridge to pass through:</span></span><br><span class="line">    <span class="comment">#  1) kernel configured PCI device memory map address: address range</span></span><br><span class="line">    <span class="comment">#     [0xC0000000, 0xFFFF0000). (The upper 64kB are reserved for m5ops.)</span></span><br><span class="line">    <span class="comment">#  2) the bridge to pass through the IO APIC (two pages, already contained in 1),</span></span><br><span class="line">    <span class="comment">#  3) everything in the IO address range up to the local APIC, and</span></span><br><span class="line">    <span class="comment">#  4) then the entire PCI address space and beyond.</span></span><br><span class="line">    x86_sys.bridge.ranges = \</span><br><span class="line">        [</span><br><span class="line">        AddrRange(<span class="number">0xC0000000</span>, <span class="number">0xFFFF0000</span>),</span><br><span class="line">        AddrRange(IO_address_space_base,</span><br><span class="line">                  interrupts_address_space_base - <span class="number">1</span>),</span><br><span class="line">        AddrRange(pci_config_address_space_base,</span><br><span class="line">                  Addr.<span class="built_in">max</span>)</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Create a bridge from the IO bus to the memory bus to allow access to</span></span><br><span class="line">    <span class="comment"># the local APIC (two pages)</span></span><br><span class="line">    x86_sys.apicbridge = Bridge(delay=<span class="string">&#x27;50ns&#x27;</span>)</span><br><span class="line">    x86_sys.apicbridge.cpu_side_port = x86_sys.iobus.mem_side_ports</span><br><span class="line">    x86_sys.apicbridge.mem_side_port = x86_sys.membus.cpu_side_ports</span><br><span class="line">    x86_sys.apicbridge.ranges = [AddrRange(interrupts_address_space_base,</span><br><span class="line">                                           interrupts_address_space_base +</span><br><span class="line">                                           numCPUs * APIC_range_size</span><br><span class="line">                                           - <span class="number">1</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># connect the io bus</span></span><br><span class="line">    x86_sys.pc.attachIO(x86_sys.iobus)</span><br><span class="line"></span><br><span class="line">    x86_sys.system_port = x86_sys.membus.cpu_side_ports</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.intrctrl = IntrControl() <span class="comment"># 最新的gem5已经删除</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Disks</span></span><br><span class="line">disks = makeCowDisks(mdesc.disks())</span><br><span class="line">self.pc.south_bridge.ide.disks = disks</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Add in a Bios information structure.</span></span><br><span class="line">structures = [X86SMBiosBiosInformation()]</span><br><span class="line">workload.smbios_table.structures = structures</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Set up the Intel MP table</span></span><br><span class="line">base_entries = []</span><br><span class="line">ext_entries = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(numCPUs):</span><br><span class="line">    bp = X86IntelMPProcessor(</span><br><span class="line">            local_apic_id = i,</span><br><span class="line">            local_apic_version = <span class="number">0x14</span>,</span><br><span class="line">            enable = <span class="literal">True</span>,</span><br><span class="line">            bootstrap = (i == <span class="number">0</span>))</span><br><span class="line">    base_entries.append(bp)</span><br><span class="line">io_apic = X86IntelMPIOAPIC(</span><br><span class="line">        <span class="built_in">id</span> = numCPUs,</span><br><span class="line">        version = <span class="number">0x11</span>,</span><br><span class="line">        enable = <span class="literal">True</span>,</span><br><span class="line">        address = <span class="number">0xfec00000</span>)</span><br><span class="line">self.pc.south_bridge.io_apic.apic_id = io_apic.<span class="built_in">id</span></span><br><span class="line">base_entries.append(io_apic)</span><br><span class="line"><span class="comment"># In gem5 Pc::calcPciConfigAddr(), it required &quot;assert(bus==0)&quot;,</span></span><br><span class="line"><span class="comment"># but linux kernel cannot config PCI device if it was not connected to</span></span><br><span class="line"><span class="comment"># PCI bus, so we fix PCI bus id to 0, and ISA bus id to 1.</span></span><br><span class="line">pci_bus = X86IntelMPBus(bus_id = <span class="number">0</span>, bus_type=<span class="string">&#x27;PCI   &#x27;</span>)</span><br><span class="line">base_entries.append(pci_bus)</span><br><span class="line">isa_bus = X86IntelMPBus(bus_id = <span class="number">1</span>, bus_type=<span class="string">&#x27;ISA   &#x27;</span>)</span><br><span class="line">base_entries.append(isa_bus)</span><br><span class="line">connect_busses = X86IntelMPBusHierarchy(bus_id=<span class="number">1</span>,</span><br><span class="line">        subtractive_decode=<span class="literal">True</span>, parent_bus=<span class="number">0</span>)</span><br><span class="line">ext_entries.append(connect_busses)</span><br><span class="line">pci_dev4_inta = X86IntelMPIOIntAssignment(</span><br><span class="line">        interrupt_type = <span class="string">&#x27;INT&#x27;</span>,</span><br><span class="line">        polarity = <span class="string">&#x27;ConformPolarity&#x27;</span>,</span><br><span class="line">        trigger = <span class="string">&#x27;ConformTrigger&#x27;</span>,</span><br><span class="line">        source_bus_id = <span class="number">0</span>,</span><br><span class="line">        source_bus_irq = <span class="number">0</span> + (<span class="number">4</span> &lt;&lt; <span class="number">2</span>),</span><br><span class="line">        dest_io_apic_id = io_apic.<span class="built_in">id</span>,</span><br><span class="line">        dest_io_apic_intin = <span class="number">16</span>)</span><br><span class="line">base_entries.append(pci_dev4_inta)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">assignISAInt</span>(<span class="params">irq, apicPin</span>):</span><br><span class="line">    assign_8259_to_apic = X86IntelMPIOIntAssignment(</span><br><span class="line">            interrupt_type = <span class="string">&#x27;ExtInt&#x27;</span>,</span><br><span class="line">            polarity = <span class="string">&#x27;ConformPolarity&#x27;</span>,</span><br><span class="line">            trigger = <span class="string">&#x27;ConformTrigger&#x27;</span>,</span><br><span class="line">            source_bus_id = <span class="number">1</span>,</span><br><span class="line">            source_bus_irq = irq,</span><br><span class="line">            dest_io_apic_id = io_apic.<span class="built_in">id</span>,</span><br><span class="line">            dest_io_apic_intin = <span class="number">0</span>)</span><br><span class="line">    base_entries.append(assign_8259_to_apic)</span><br><span class="line">    assign_to_apic = X86IntelMPIOIntAssignment(</span><br><span class="line">            interrupt_type = <span class="string">&#x27;INT&#x27;</span>,</span><br><span class="line">            polarity = <span class="string">&#x27;ConformPolarity&#x27;</span>,</span><br><span class="line">            trigger = <span class="string">&#x27;ConformTrigger&#x27;</span>,</span><br><span class="line">            source_bus_id = <span class="number">1</span>,</span><br><span class="line">            source_bus_irq = irq,</span><br><span class="line">            dest_io_apic_id = io_apic.<span class="built_in">id</span>,</span><br><span class="line">            dest_io_apic_intin = apicPin)</span><br><span class="line">    base_entries.append(assign_to_apic)</span><br><span class="line">assignISAInt(<span class="number">0</span>, <span class="number">2</span>)</span><br><span class="line">assignISAInt(<span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>, <span class="number">15</span>):</span><br><span class="line">    assignISAInt(i, i)</span><br><span class="line">workload.intel_mp_table.base_entries = base_entries</span><br><span class="line">workload.intel_mp_table.ext_entries = ext_entries</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> self</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">makeLinuxX86System</span>(<span class="params">mem_mode, numCPUs=<span class="number">1</span>, mdesc=<span class="literal">None</span>, Ruby=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">                       cmdline=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="comment"># Build up the x86 system and then specialize it for Linux</span></span><br><span class="line">    self = makeX86System(mem_mode, numCPUs, mdesc, X86FsLinux(), Ruby)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># We assume below that there&#x27;s at least 1MB of memory. We&#x27;ll require 2</span></span><br><span class="line">    <span class="comment"># just to avoid corner cases.</span></span><br><span class="line">    phys_mem_size = <span class="built_in">sum</span>([r.size() <span class="keyword">for</span> r <span class="keyword">in</span> self.mem_ranges])</span><br><span class="line">    <span class="keyword">assert</span>(phys_mem_size &gt;= <span class="number">0x200000</span>)</span><br><span class="line">    <span class="keyword">assert</span>(<span class="built_in">len</span>(self.mem_ranges) &lt;= <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    entries = \</span><br><span class="line">       [</span><br><span class="line">        <span class="comment"># Mark the first megabyte of memory as reserved</span></span><br><span class="line">        X86E820Entry(addr = <span class="number">0</span>, size = <span class="string">&#x27;639kB&#x27;</span>, range_type = <span class="number">1</span>),</span><br><span class="line">        X86E820Entry(addr = <span class="number">0x9fc00</span>, size = <span class="string">&#x27;385kB&#x27;</span>, range_type = <span class="number">2</span>),</span><br><span class="line">        <span class="comment"># Mark the rest of physical memory as available</span></span><br><span class="line">        X86E820Entry(addr = <span class="number">0x100000</span>,</span><br><span class="line">                size = <span class="string">&#x27;%dB&#x27;</span> % (self.mem_ranges[<span class="number">0</span>].size() - <span class="number">0x100000</span>),</span><br><span class="line">                range_type = <span class="number">1</span>),</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Mark [mem_size, 3GB) as reserved if memory less than 3GB, which force</span></span><br><span class="line">    <span class="comment"># IO devices to be mapped to [0xC0000000, 0xFFFF0000). Requests to this</span></span><br><span class="line">    <span class="comment"># specific range can pass though bridge to iobus.</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(self.mem_ranges) == <span class="number">1</span>:</span><br><span class="line">        entries.append(X86E820Entry(addr = self.mem_ranges[<span class="number">0</span>].size(),</span><br><span class="line">            size=<span class="string">&#x27;%dB&#x27;</span> % (<span class="number">0xC0000000</span> - self.mem_ranges[<span class="number">0</span>].size()),</span><br><span class="line">            range_type=<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Reserve the last 16kB of the 32-bit address space for the m5op interface</span></span><br><span class="line">    entries.append(X86E820Entry(addr=<span class="number">0xFFFF0000</span>, size=<span class="string">&#x27;64kB&#x27;</span>, range_type=<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># In case the physical memory is greater than 3GB, we split it into two</span></span><br><span class="line">    <span class="comment"># parts and add a separate e820 entry for the second part.  This entry</span></span><br><span class="line">    <span class="comment"># starts at 0x100000000,  which is the first address after the space</span></span><br><span class="line">    <span class="comment"># reserved for devices.</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(self.mem_ranges) == <span class="number">2</span>:</span><br><span class="line">        entries.append(X86E820Entry(addr = <span class="number">0x100000000</span>,</span><br><span class="line">            size = <span class="string">&#x27;%dB&#x27;</span> % (self.mem_ranges[<span class="number">1</span>].size()), range_type = <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    self.workload.e820_table.entries = entries</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Command line</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> cmdline:</span><br><span class="line">        cmdline = <span class="string">&#x27;earlyprintk=ttyS0 console=ttyS0 lpj=7999923 root=/dev/hda1&#x27;</span></span><br><span class="line">    self.workload.command_line = fillInCmdline(mdesc, cmdline)</span><br><span class="line">    <span class="keyword">return</span> self</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Set the cache line size for the entire system</span></span><br><span class="line">test_sys.cache_line_size = options.cacheline_size</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a top-level voltage domain</span></span><br><span class="line">test_sys.voltage_domain = VoltageDomain(voltage = options.sys_voltage)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a source clock for the system and set the clock period</span></span><br><span class="line">test_sys.clk_domain = SrcClockDomain(clock =  options.sys_clock,</span><br><span class="line">        voltage_domain = test_sys.voltage_domain)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a CPU voltage domain</span></span><br><span class="line">test_sys.cpu_voltage_domain = VoltageDomain()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Create a source clock for the CPUs and set the clock period</span></span><br><span class="line">test_sys.cpu_clk_domain = SrcClockDomain(clock = options.cpu_clock,</span><br><span class="line">                                         voltage_domain =</span><br><span class="line">                                         test_sys.cpu_voltage_domain)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] == <span class="string">&#x27;riscv&#x27;</span>:</span><br><span class="line">    test_sys.workload.bootloader = options.kernel</span><br><span class="line"><span class="keyword">elif</span> options.kernel <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    test_sys.workload.object_file = binary(options.kernel)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> options.script <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    test_sys.readfile = options.script</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> options.lpae:</span><br><span class="line">    test_sys.have_lpae = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> options.virtualisation:</span><br><span class="line">    test_sys.have_virtualization = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">test_sys.init_param = options.init_param</span><br><span class="line"></span><br><span class="line"><span class="comment"># For now, assign all the CPUs to the same clock domain</span></span><br><span class="line">test_sys.cpu = [TestCPUClass(clk_domain=test_sys.cpu_clk_domain, cpu_id=i)</span><br><span class="line">                <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(np)]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ObjectList.is_kvm_cpu(TestCPUClass) <span class="keyword">or</span> \</span><br><span class="line">    ObjectList.is_kvm_cpu(FutureClass):</span><br><span class="line">    test_sys.kvm_vm = KvmVM()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> options.ruby:</span><br><span class="line">    bootmem = <span class="built_in">getattr</span>(test_sys, <span class="string">&#x27;_bootmem&#x27;</span>, <span class="literal">None</span>)</span><br><span class="line">    Ruby.create_system(options, <span class="literal">True</span>, test_sys, test_sys.iobus,</span><br><span class="line">                       test_sys._dma_ports, bootmem)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Create a seperate clock domain for Ruby</span></span><br><span class="line">    test_sys.ruby.clk_domain = SrcClockDomain(clock = options.ruby_clock,</span><br><span class="line">                                    voltage_domain = test_sys.voltage_domain)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Connect the ruby io port to the PIO bus,</span></span><br><span class="line">    <span class="comment"># assuming that there is just one such port.</span></span><br><span class="line">    test_sys.iobus.master = test_sys.ruby._io_port.slave</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i, cpu) <span class="keyword">in</span> <span class="built_in">enumerate</span>(test_sys.cpu):</span><br><span class="line">        <span class="comment">#</span></span><br><span class="line">        <span class="comment"># Tie the cpu ports to the correct ruby system ports</span></span><br><span class="line">        <span class="comment">#</span></span><br><span class="line">        cpu.clk_domain = test_sys.cpu_clk_domain</span><br><span class="line">        cpu.createThreads()</span><br><span class="line">        cpu.createInterruptController()</span><br><span class="line"></span><br><span class="line">        cpu.icache_port = test_sys.ruby._cpu_ports[i].slave</span><br><span class="line">        cpu.dcache_port = test_sys.ruby._cpu_ports[i].slave</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] <span class="keyword">in</span> (<span class="string">&quot;x86&quot;</span>, <span class="string">&quot;arm&quot;</span>):</span><br><span class="line">            cpu.itb.walker.port = test_sys.ruby._cpu_ports[i].slave</span><br><span class="line">            cpu.dtb.walker.port = test_sys.ruby._cpu_ports[i].slave</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> buildEnv[<span class="string">&#x27;TARGET_ISA&#x27;</span>] <span class="keyword">in</span> <span class="string">&quot;x86&quot;</span>:</span><br><span class="line">            cpu.interrupts[<span class="number">0</span>].pio = test_sys.ruby._cpu_ports[i].master</span><br><span class="line">            cpu.interrupts[<span class="number">0</span>].int_master = test_sys.ruby._cpu_ports[i].slave</span><br><span class="line">            cpu.interrupts[<span class="number">0</span>].int_slave = test_sys.ruby._cpu_ports[i].master</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">if</span> options.caches <span class="keyword">or</span> options.l2cache:</span><br><span class="line">        <span class="comment"># By default the IOCache runs at the system clock</span></span><br><span class="line">        test_sys.iocache = IOCache(addr_ranges = test_sys.mem_ranges)</span><br><span class="line">        test_sys.iocache.cpu_side = test_sys.iobus.master</span><br><span class="line">        test_sys.iocache.mem_side = test_sys.membus.slave</span><br><span class="line">    <span class="keyword">elif</span> <span class="keyword">not</span> options.external_memory_system:</span><br><span class="line">        test_sys.iobridge = Bridge(delay=<span class="string">&#x27;50ns&#x27;</span>, ranges = test_sys.mem_ranges)</span><br><span class="line">        test_sys.iobridge.slave = test_sys.iobus.master</span><br><span class="line">        test_sys.iobridge.master = test_sys.membus.slave</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Sanity check</span></span><br><span class="line">    <span class="keyword">if</span> options.simpoint_profile:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> ObjectList.is_noncaching_cpu(TestCPUClass):</span><br><span class="line">            fatal(<span class="string">&quot;SimPoint generation should be done with atomic cpu&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> np &gt; <span class="number">1</span>:</span><br><span class="line">            fatal(<span class="string">&quot;SimPoint generation not supported with more than one CPUs&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(np):</span><br><span class="line">        <span class="keyword">if</span> options.simpoint_profile:</span><br><span class="line">            test_sys.cpu[i].addSimPointProbe(options.simpoint_interval)</span><br><span class="line">        <span class="keyword">if</span> options.checker:</span><br><span class="line">            test_sys.cpu[i].addCheckerCpu()</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> ObjectList.is_kvm_cpu(TestCPUClass):</span><br><span class="line">            <span class="keyword">if</span> options.bp_type:</span><br><span class="line">                bpClass = ObjectList.bp_list.get(options.bp_type)</span><br><span class="line">                test_sys.cpu[i].branchPred = bpClass()</span><br><span class="line">            <span class="keyword">if</span> options.indirect_bp_type:</span><br><span class="line">                IndirectBPClass = ObjectList.indirect_bp_list.get(</span><br><span class="line">                    options.indirect_bp_type)</span><br><span class="line">                test_sys.cpu[i].branchPred.indirectBranchPred = \</span><br><span class="line">                    IndirectBPClass()</span><br><span class="line">        test_sys.cpu[i].createThreads()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># If elastic tracing is enabled when not restoring from checkpoint and</span></span><br><span class="line">    <span class="comment"># when not fast forwarding using the atomic cpu, then check that the</span></span><br><span class="line">    <span class="comment"># TestCPUClass is DerivO3CPU or inherits from DerivO3CPU. If the check</span></span><br><span class="line">    <span class="comment"># passes then attach the elastic trace probe.</span></span><br><span class="line">    <span class="comment"># If restoring from checkpoint or fast forwarding, the code that does this for</span></span><br><span class="line">    <span class="comment"># FutureCPUClass is in the Simulation module. If the check passes then the</span></span><br><span class="line">    <span class="comment"># elastic trace probe is attached to the switch CPUs.</span></span><br><span class="line">    <span class="keyword">if</span> options.elastic_trace_en <span class="keyword">and</span> options.checkpoint_restore == <span class="literal">None</span> <span class="keyword">and</span> \</span><br><span class="line">        <span class="keyword">not</span> options.fast_forward:</span><br><span class="line">        CpuConfig.config_etrace(TestCPUClass, test_sys.cpu, options)</span><br><span class="line"></span><br><span class="line">    CacheConfig.config_cache(options, test_sys)</span><br><span class="line"></span><br><span class="line">    MemConfig.config_mem(options, test_sys)</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> test_sys</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="dev的x86解析"><a href="#dev的x86解析" class="headerlink" title="dev的x86解析"></a>dev的x86解析</h2><p>x86的dev整体是由Pc来构建的，即pc代表的是x86 platform，继承了Platform类。包含了一个system指针，南桥指针，以及中断控制器。其中有四种方法：发出终端中断、清除终端中断、发出PCI中断和清除PCI中断。可以看到，它创建了三个为了支持linux内核的计时功能的不存在的端口，地址分别为0x80, 0xed和0xcf8(当然，它们都需要加上0x80000000)。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Pc</span>(<span class="title class_ inherited__">Platform</span>):</span><br><span class="line">    <span class="built_in">type</span> = <span class="string">&#x27;Pc&#x27;</span></span><br><span class="line">    cxx_header = <span class="string">&quot;dev/x86/pc.hh&quot;</span></span><br><span class="line">    system = Param.System(Parent.<span class="built_in">any</span>, <span class="string">&quot;system&quot;</span>)</span><br><span class="line"></span><br><span class="line">    south_bridge = SouthBridge()</span><br><span class="line">    pci_host = PcPciHost()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># &quot;Non-existant&quot; ports used for timing purposes by the linux kernel</span></span><br><span class="line">    i_dont_exist1 = IsaFake(pio_addr=x86IOAddress(<span class="number">0x80</span>), pio_size=<span class="number">1</span>)</span><br><span class="line">    i_dont_exist2 = IsaFake(pio_addr=x86IOAddress(<span class="number">0xed</span>), pio_size=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Ports behind the pci config and data regsiters. These don&#x27;t do anything,</span></span><br><span class="line">    <span class="comment"># but the linux kernel fiddles with them anway.</span></span><br><span class="line">    behind_pci = IsaFake(pio_addr=x86IOAddress(<span class="number">0xcf8</span>), pio_size=<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Serial port and terminal</span></span><br><span class="line">    com_1 = Uart8250()</span><br><span class="line">    com_1.pio_addr = x86IOAddress(<span class="number">0x3f8</span>)</span><br><span class="line">    com_1.device = Terminal()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Devices to catch access to non-existant serial ports.</span></span><br><span class="line">    fake_com_2 = IsaFake(pio_addr=x86IOAddress(<span class="number">0x2f8</span>), pio_size=<span class="number">8</span>)</span><br><span class="line">    fake_com_3 = IsaFake(pio_addr=x86IOAddress(<span class="number">0x3e8</span>), pio_size=<span class="number">8</span>)</span><br><span class="line">    fake_com_4 = IsaFake(pio_addr=x86IOAddress(<span class="number">0x2e8</span>), pio_size=<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># A device to catch accesses to the non-existant floppy controller.</span></span><br><span class="line">    fake_floppy = IsaFake(pio_addr=x86IOAddress(<span class="number">0x3f2</span>), pio_size=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">attachIO</span>(<span class="params">self, bus, dma_ports = []</span>):</span><br><span class="line">        self.south_bridge.attachIO(bus, dma_ports)</span><br><span class="line">        self.i_dont_exist1.pio = bus.master</span><br><span class="line">        self.i_dont_exist2.pio = bus.master</span><br><span class="line">        self.behind_pci.pio = bus.master</span><br><span class="line">        self.com_1.pio = bus.master</span><br><span class="line">        self.fake_com_2.pio = bus.master</span><br><span class="line">        self.fake_com_3.pio = bus.master</span><br><span class="line">        self.fake_com_4.pio = bus.master</span><br><span class="line">        self.fake_floppy.pio = bus.master</span><br><span class="line">        self.pci_host.pio = bus.default</span><br></pre></td></tr></table></figure>
+
+<p>在实例化对应的IO设备后，需要连接至IO总线端。bus我猜测应该是<code>IOXBar</code>，它继承了<code>NonCoherentXbar</code>，同时是<code>BaseXBar</code>孩子。能够看到<code>bus.master</code>指的是<code>mem_side_ports</code>。<code>pci_host</code>会连接到默认端口。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BaseXBar</span>(<span class="title class_ inherited__">ClockedObject</span>):</span><br><span class="line">    <span class="built_in">type</span> = <span class="string">&#x27;BaseXBar&#x27;</span></span><br><span class="line">    abstract = <span class="literal">True</span></span><br><span class="line">    cxx_header = <span class="string">&quot;mem/xbar.hh&quot;</span></span><br><span class="line">    cxx_class = <span class="string">&#x27;gem5::BaseXBar&#x27;</span></span><br><span class="line"></span><br><span class="line">    cpu_side_ports = VectorResponsePort(<span class="string">&quot;Vector port for connecting &quot;</span></span><br><span class="line">                                                <span class="string">&quot;mem side ports&quot;</span>)</span><br><span class="line">    slave    = DeprecatedParam(cpu_side_ports,</span><br><span class="line">                                <span class="string">&#x27;`slave` is now called `cpu_side_ports`&#x27;</span>)</span><br><span class="line">    mem_side_ports = VectorRequestPort(<span class="string">&quot;Vector port for connecting &quot;</span></span><br><span class="line">                                                <span class="string">&quot;cpu side ports&quot;</span>)</span><br><span class="line">    master   = DeprecatedParam(mem_side_ports,</span><br><span class="line">                                <span class="string">&#x27;`master` is now called `mem_side_ports`&#x27;</span>)</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment"># The default port can be left unconnected, or be used to connect</span></span><br><span class="line">    <span class="comment"># a default response port</span></span><br><span class="line">    default = RequestPort(<span class="string">&quot;Port for connecting an optional default responder&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="gem5的HMC部分"><a href="#gem5的HMC部分" class="headerlink" title="gem5的HMC部分"></a>gem5的HMC部分</h2><p>hmc位于<code>src/mem</code>部分。</p>
+<p>HMC.py构建了一个完整的HMC设备，包含了valut controllers, serial links, main internal crossbar和一个external hmc controller。</p>
+<ul>
+<li>vault controller：是HMC_2500_1x32并拥有dram控制器的实例类，同时拥有dram_ctrl.cc定义的功能。</li>
+<li>main xbar：是一个简单的NoncoherentXBar的实例类。</li>
+<li>serial links controller：SerialLink是Bridge类的简单变体，能够计算packet serialization的延迟和controller latency。我们假设serializer component在transmitter side不需要收到整个包裹来开始线性化过程。然而反线性化需要等待整个包裹的到来，首先检查它的一致性。<ul>
+<li>Bandwidth of the serial links is not modeled in the SerialLink component itself</li>
+<li>serial link controller的延迟由SerDes latency + link controller组成</li>
+<li>serial links分享相同的地址范围和数据包，因此它们需要load distribution机制。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">-----------------------------------------</span><br><span class="line">| Host/HMC Controller                   |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        |  Link Aggregator   |  opt    |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        |  Serial Link + Ser | * 4     |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|---------------------------------------| </span><br><span class="line">-----------------------------------------</span><br><span class="line">| Device                                |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        |       Xbar         | * 4     |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        |  Vault Controller  | * 16    |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|        |     Memory         |         |</span><br><span class="line">|        ----------------------         |</span><br><span class="line">|---------------------------------------|</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Full-System%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">Full System架构解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%B3%BB%E7%BB%9F%E5%88%9B%E5%BB%BA"><span class="toc-number">1.1.</span> <span class="toc-text">内存系统创建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dev%E7%9A%84x86%E8%A7%A3%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">dev的x86解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gem5%E7%9A%84HMC%E9%83%A8%E5%88%86"><span class="toc-number">3.</span> <span class="toc-text">gem5的HMC部分</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&text=古早gem5源码学习"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&is_video=false&description=古早gem5源码学习"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=古早gem5源码学习&body=Check out this article: https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&title=古早gem5源码学习"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&name=古早gem5源码学习&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/05/03/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/&t=古早gem5源码学习"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
