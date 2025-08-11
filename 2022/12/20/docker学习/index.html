@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="it’s simply a translation to docker tutorial container和container image  Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. Th">
+    <meta name="description" content="it’s simply a translation to docker tutorial container和container image Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. Tha">
 <meta property="og:type" content="article">
 <meta property="og:title" content="docker学习">
 <meta property="og:url" content="https://ccccrrrr.github.io/2022/12/20/docker%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="从蓉的博客">
-<meta property="og:description" content="it’s simply a translation to docker tutorial container和container image  Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. Th">
+<meta property="og:description" content="it’s simply a translation to docker tutorial container和container image Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. Tha">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-12-20T10:47:36.000Z">
 <meta property="article:modified_time" content="2025-05-02T13:36:07.727Z">
@@ -60,10 +60,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
-<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
-  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
     
@@ -128,7 +125,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#container%E5%92%8Ccontainer-image"><span class="toc-number">1.</span> <span class="toc-text">container和container image</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#volume"><span class="toc-number">2.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#multi-container-apps"><span class="toc-number">3.</span> <span class="toc-text">Multi container apps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-compose"><span class="toc-number">4.</span> <span class="toc-text">Docker Compose</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#image-building"><span class="toc-number">5.</span> <span class="toc-text">Image building</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#layer-caching"><span class="toc-number">5.1.</span> <span class="toc-text">Layer caching</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#container%E5%92%8Ccontainer-image"><span class="toc-number">1.</span> <span class="toc-text">container和container image</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Volume"><span class="toc-number">2.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multi-container-apps"><span class="toc-number">3.</span> <span class="toc-text">Multi container apps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Compose"><span class="toc-number">4.</span> <span class="toc-text">Docker Compose</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Image-building"><span class="toc-number">5.</span> <span class="toc-text">Image building</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Layer-caching"><span class="toc-number">5.1.</span> <span class="toc-text">Layer caching</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -179,9 +176,8 @@
 
   <div class="content e-content" itemprop="articleBody">
     <p>it’s simply a translation to <a target="_blank" rel="noopener" href="https://docs.docker.com/get-started/">docker tutorial</a></p>
-<h2 id="container和container-image">container和container image</h2>
-<blockquote>
-<p>Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. That isolation leverages <a target="_blank" rel="noopener" href="https://medium.com/@saschagrunert/demystifying-containers-part-i-kernel-space-2c53d6979504">kernel namespaces and cgroups</a>, features that have been in Linux for a long time.</p>
+<h2 id="container和container-image"><a href="#container和container-image" class="headerlink" title="container和container image"></a>container和container image</h2><blockquote>
+<p>Simply put, a container is a sandboxed process on your machine that is isolated from all other processes on the host machine. That isolation leverages <a target="_blank" rel="noopener" href="https://medium.com/@saschagrunert/demystifying-containers-part-i-kernel-space-2c53d6979504">kernel namespaces and cgroups</a>, features that have been in Linux for a long time. </p>
 </blockquote>
 <p>container是一个可以运行的image的实例。可以对一个container进行创建、开始、停止、移动、删除的操作。</p>
 <p>container可以在本地机器，虚拟机，或者部署在云上运行。</p>
@@ -193,6 +189,7 @@
 </blockquote>
 <p><code>docker build</code>指令通过Dockerfile构建了一个全新的container image。</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># syntax=docker/dockerfile:1</span></span><br><span class="line"><span class="keyword">FROM</span> node:<span class="number">18</span>-alpine</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> . .</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> yarn install --production</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;node&quot;</span>, <span class="string">&quot;src/index.js&quot;</span>]</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">3000</span></span><br></pre></td></tr></table></figure>
+
 <p>然后运行：<code>docker build -t getting-started .</code>即可成功创建一个image。</p>
 <p>首先docker会下载很多layer，因为需要将<code>node:18-alpine</code>镜像下载下来。</p>
 <p>使用yarn指令安装应用依赖，CMD指令指定了默认的命令，该命令会在开始一个container时执行。</p>
@@ -209,47 +206,51 @@
 </blockquote>
 <p>这条指令将会创建一个新的image。例子如下：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">⋊&gt; ~/g/app on master ⨯ docker image ls                                                                                                            <span class="number">14</span>:<span class="number">09</span>:<span class="number">03</span></span><br><span class="line">REPOSITORY        TAG       IMAGE ID       CREATED          SIZE</span><br><span class="line">getting-started   latest    b2956362c236   <span class="number">6</span> minutes ago    <span class="number">255</span>MB</span><br><span class="line">&lt;none&gt;            &lt;none&gt;    <span class="number">977</span>d645603ad   <span class="number">13</span> minutes ago   <span class="number">255</span>MB</span><br><span class="line">⋊&gt; ~/g/app on master ⨯ docker tag getting-started ccccrrrr/getting-started                                                                        <span class="number">14</span>:<span class="number">10</span>:<span class="number">08</span></span><br><span class="line">⋊&gt; ~/g/app on master ⨯ docker image ls                                                                                                            <span class="number">14</span>:<span class="number">10</span>:<span class="number">36</span></span><br><span class="line">REPOSITORY                 TAG       IMAGE ID       CREATED          SIZE</span><br><span class="line">ccccrrrr/getting-started   latest    b2956362c236   <span class="number">7</span> minutes ago    <span class="number">255</span>MB</span><br><span class="line">getting-started            latest    b2956362c236   <span class="number">7</span> minutes ago    <span class="number">255</span>MB</span><br><span class="line">&lt;none&gt;                     &lt;none&gt;    <span class="number">977</span>d645603ad   <span class="number">14</span> minutes ago   <span class="number">255</span>MB</span><br></pre></td></tr></table></figure>
+
 <p>当每一次开启一个container的时候，数据都会被清除。同时，当使用命令remove整个container的时候，数据也会被删除。在特定情况下，持久化数据是较为重要的。</p>
 <p>可以在docker desktop中进入指定的容器进行命令行操作，或者是直接使用<code>docker exec</code>，同时制定container id来进行命令行操作。</p>
-<h2 id="volume">Volume</h2>
-<blockquote>
+<h2 id="Volume"><a href="#Volume" class="headerlink" title="Volume"></a>Volume</h2><blockquote>
 <p><a target="_blank" rel="noopener" href="https://docs.docker.com/storage/volumes/">Volumes</a> provide the ability to connect specific filesystem paths of the container back to the host machine.</p>
 </blockquote>
 <p>如果一个文件夹背挂在到了一个container中，那么当这个container改变其中的文件时，主机也能够感知到。之后重启，也能得到其中的变化。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -dp 3000:3000 -v todo-db:/etc/todos getting-started</span><br></pre></td></tr></table></figure>
+
 <p>-v就是指定了将volumn挂载到container的哪个位置。</p>
 <p>可以只用<code>docker volume create [volume-name]</code>来创建一个volume。</p>
 <p>可以看到创建的volume的具体信息；</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">docker volume inspect todo-db</span><br><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;CreatedAt&quot;</span>: <span class="string">&quot;2019-09-26T02:18:36Z&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Driver&quot;</span>: <span class="string">&quot;local&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Labels&quot;</span>: &#123;&#125;,</span><br><span class="line">        <span class="string">&quot;Mountpoint&quot;</span>: <span class="string">&quot;/var/lib/docker/volumes/todo-db/_data&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Name&quot;</span>: <span class="string">&quot;todo-db&quot;</span>,</span><br><span class="line">        <span class="string">&quot;Options&quot;</span>: &#123;&#125;,</span><br><span class="line">        <span class="string">&quot;Scope&quot;</span>: <span class="string">&quot;local&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
 <p>上面所说都是named volume，即创建一个有名字的volume，然后在创建container时通过名字来使用它们。</p>
 <p>同时，还有一种方法，称为bind mounts。这样，可以把源文件挂在到container中，对于修改来说非常方便。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -dp 3000:3000 \</span><br><span class="line">     -w /app -v <span class="string">&quot;<span class="subst">$(pwd)</span>:/app&quot;</span> \</span><br><span class="line">     node:18-alpine \</span><br><span class="line">     sh -c <span class="string">&quot;yarn install &amp;&amp; yarn run dev&quot;</span></span><br></pre></td></tr></table></figure>
+
 <p><code>-w</code>定义了working directory，表明下面的指令应该在哪个目录下运行。</p>
 <p><code>-v</code>定义了讲当前目录挂载到<code>/app</code>上。</p>
 <p><code>node:18-alpine</code>是使用的镜像。</p>
 <p>最后一行是要在<code>/app</code>下执行的指令。</p>
 <p>指令<code>docker logs -f &lt;container-id&gt;</code>能够看到container运行的全部log。</p>
 <p>从上面可以看到，bind mounts更为常见。</p>
-<h2 id="multi-container-apps">Multi container apps</h2>
-<p>当需要有很多应用一起工作时，最好还是不要让一个container里运行所有的应用。理想情况下应该是一个container运行一个应用。容器之间通过<strong>network</strong>进行沟通。</p>
+<h2 id="Multi-container-apps"><a href="#Multi-container-apps" class="headerlink" title="Multi container apps"></a>Multi container apps</h2><p>当需要有很多应用一起工作时，最好还是不要让一个container里运行所有的应用。理想情况下应该是一个container运行一个应用。容器之间通过<strong>network</strong>进行沟通。</p>
 <p>有两种方法将一个容器放在指定网络上：1. 在开启他时就指定；2. 连接一个现有的容器。</p>
 <p>对于第一种方法：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --network todo-app nicolaka/netshoot</span><br></pre></td></tr></table></figure>
+
 <p>指定该容器在todo-app的网络下运行。</p>
 <p>或者在现有容器中指定运行时的需要通信的端口即可。</p>
-<h2 id="docker-compose">Docker Compose</h2>
-<blockquote>
+<h2 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h2><blockquote>
 <p>Docker Compose is a tool that was developed to help define and share multi-container applications. With Compose, we can create a YAML file to define the services and with a single command, can spin everything up or tear it all down.</p>
 </blockquote>
 <p>一个docker compose就像这样：</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">services:</span><br><span class="line">  app:</span><br><span class="line">    image: node:<span class="number">18</span>-alpine</span><br><span class="line">    command: sh -c <span class="string">&quot;yarn install &amp;&amp; yarn run dev&quot;</span></span><br><span class="line">    ports:</span><br><span class="line">      - <span class="number">3000</span>:<span class="number">3000</span></span><br><span class="line">    working_dir: /app</span><br><span class="line">    volumes:</span><br><span class="line">      - ./:/app</span><br><span class="line">    environment:</span><br><span class="line">      MYSQL_HOST: mysql</span><br><span class="line">      MYSQL_USER: root</span><br><span class="line">      MYSQL_PASSWORD: secret</span><br><span class="line">      MYSQL_DB: todos</span><br><span class="line"></span><br><span class="line">  mysql:</span><br><span class="line">    image: mysql:<span class="number">8.0</span></span><br><span class="line">    volumes:</span><br><span class="line">      - todo-mysql-data:/var/lib/mysql</span><br><span class="line">    environment:</span><br><span class="line">      MYSQL_ROOT_PASSWORD: secret</span><br><span class="line">      MYSQL_DATABASE: todos</span><br><span class="line"></span><br><span class="line">volumes:</span><br><span class="line">  todo-mysql-data:</span><br></pre></td></tr></table></figure>
+
+
+
 <p>完成一个docker compose文件后使用命令</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker compose up -d</span><br></pre></td></tr></table></figure>
+
 <p>即可创建指定的所有container，让它们一起运行起来。其中<code>-d</code>表示所有container都会在后台运行。</p>
-<h2 id="image-building">Image building</h2>
-<p>使用<code>docker image history getting-started</code>能够查看getting-started镜像是如何构建起来的。这个被称为image的layer。增加<code>--no-trunc</code>标志能够看到更完整的输出。</p>
-<h3 id="layer-caching">Layer caching</h3>
-<p>使用history能够看到一个image构建的完整layer，那么当有一层layer改变之后下游的所有layer都会重新构建。</p>
+<h2 id="Image-building"><a href="#Image-building" class="headerlink" title="Image building"></a>Image building</h2><p>使用<code>docker image history getting-started</code>能够查看getting-started镜像是如何构建起来的。这个被称为image的layer。增加<code>--no-trunc</code>标志能够看到更完整的输出。</p>
+<h3 id="Layer-caching"><a href="#Layer-caching" class="headerlink" title="Layer caching"></a>Layer caching</h3><p>使用history能够看到一个image构建的完整layer，那么当有一层layer改变之后下游的所有layer都会重新构建。</p>
 <p>为了能够更好的利用之前构建的layer，可以构建一个逻辑cache，让后续的构建速度更快。d</p>
 
   </div>
@@ -284,7 +285,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#container%E5%92%8Ccontainer-image"><span class="toc-number">1.</span> <span class="toc-text">container和container image</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#volume"><span class="toc-number">2.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#multi-container-apps"><span class="toc-number">3.</span> <span class="toc-text">Multi container apps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-compose"><span class="toc-number">4.</span> <span class="toc-text">Docker Compose</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#image-building"><span class="toc-number">5.</span> <span class="toc-text">Image building</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#layer-caching"><span class="toc-number">5.1.</span> <span class="toc-text">Layer caching</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#container%E5%92%8Ccontainer-image"><span class="toc-number">1.</span> <span class="toc-text">container和container image</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Volume"><span class="toc-number">2.</span> <span class="toc-text">Volume</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Multi-container-apps"><span class="toc-number">3.</span> <span class="toc-text">Multi container apps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-Compose"><span class="toc-number">4.</span> <span class="toc-text">Docker Compose</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Image-building"><span class="toc-number">5.</span> <span class="toc-text">Image building</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Layer-caching"><span class="toc-number">5.1.</span> <span class="toc-text">Layer caching</span></a></li></ol></li></ol>
       </div>
     
 

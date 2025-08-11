@@ -61,10 +61,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
-<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
-  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
     
@@ -193,8 +190,7 @@
 <li>SimObject::resetStats()
 <li>SimObject::startup()
 <li>Drainable::drainResume() if resuming from a checkpoint.
-</ol>
-</blockquote>
+</ol></blockquote>
 <p><code>ClockedObject</code>增加了时钟和与计时有关的继承函数，能够记录对象的周期。</p>
 <p>而<code>MemObject</code>则是一个提供了获取<code>master</code>和<code>slave</code>端口的，同时有时钟周期的对象。当然，<code>MemObject</code>本身就是一个非常抽象的类，不能够直接使用。</p>
 <p><code>AbstractMemory</code>继承了<code>MemObject</code>，它是不同内存实现的最近的父类。它代表了连续的物理内存快，有相关联的地址范围，提供了基本的读写内存功能。它至少有一个<code>slave</code>端口。其中有两个获取内存的方法，一个是<code>access</code>一个是<code>functionalAccess</code>，前者需要根据对应的地址更新内存的状态，后者并不会改变内存本身，同时也不会统计这一方法的数据。显然，<code>access</code>是更为复杂的方法。下面介绍<code>access</code>的基本思路：</p>

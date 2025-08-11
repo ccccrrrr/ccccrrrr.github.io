@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="mutex底层原理mutex，即 mutual exclusion 的缩写，意为互斥 。它确保同一时刻只有一个线程能够进入被保护的区域，这个区域被称为临界区。（意思是允许一个线程多次进入临界区）    序号 名称 用途    1 std::mutex 最基本的互斥锁   2 std::recursive_mutex 同一线程可以递归（重新进入）的互斥类   3 std::timed_mutex 额">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++的mutex">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="mutex底层原理mutex，即 mutual exclusion 的缩写，意为互斥 。它确保同一时刻只有一个线程能够进入被保护的区域，这个区域被称为临界区。（意思是允许一个线程多次进入临界区）    序号 名称 用途    1 std::mutex 最基本的互斥锁   2 std::recursive_mutex 同一线程可以递归（重新进入）的互斥类   3 std::timed_mutex 额">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-11T14:49:12.000Z">
+<meta property="article:modified_time" content="2025-08-11T15:22:14.099Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="Algo Diary">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++的mutex</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/05/03/round126-div2/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&text=C++的mutex"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&is_video=false&description=C++的mutex"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的mutex&body=Check out this article: https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&name=C++的mutex&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&t=C++的mutex"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mutex%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">mutex底层原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-%E7%9A%84%E5%B8%B8%E7%94%A8%E9%94%81"><span class="toc-number">2.</span> <span class="toc-text">C++的常用锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%94%81"><span class="toc-number">3.</span> <span class="toc-text">其他锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mutex%E5%92%8C%E8%87%AA%E6%97%8B%E9%94%81"><span class="toc-number">3.1.</span> <span class="toc-text">mutex和自旋锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mutex%E5%92%8C%E8%AF%BB%E5%86%99%E9%94%81"><span class="toc-number">3.2.</span> <span class="toc-text">mutex和读写锁</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++的mutex
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-08-11T14:49:12.000Z" class="dt-published" itemprop="datePublished">2025-08-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/C/">C++</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="mutex底层原理"><a href="#mutex底层原理" class="headerlink" title="mutex底层原理"></a>mutex底层原理</h2><p>mutex，即 mutual exclusion 的缩写，意为互斥 。它确保同一时刻只有一个线程能够进入被保护的区域，这个区域被称为临界区。（意思是允许一个线程多次进入临界区）</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>名称</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>std::mutex</td>
+<td>最基本的互斥锁</td>
+</tr>
+<tr>
+<td>2</td>
+<td>std::recursive_mutex</td>
+<td>同一线程可以递归（重新进入）的互斥类</td>
+</tr>
+<tr>
+<td>3</td>
+<td>std::timed_mutex</td>
+<td>额外提供带时限请求锁定的能力</td>
+</tr>
+<tr>
+<td>4</td>
+<td>std::recursive_timed_mutex</td>
+<td>同一线程可递归且有时限的timed_mutex</td>
+</tr>
+</tbody></table>
+<p>与std::thread一样，mutex相关类不支持拷贝构造、不支持赋值。同时mutex类也不支持move语义(move构造、move赋值)。不用担心会误用这些操作，真要这么做了的话，编译器会阻止你的。</p>
+<p>mutex的底层基于原子技术。比如CAS是实现mutex的重要原子操作之一。CAS的操作就是给定一个地址，一直循环去读取这个内存地址的值。直到读到了预期的值，就把这个内存更新为新的值。mutex就是基于CAS来去实现线程之间临界区的安全性的。CAS是一条硬件指令，在硬件级别去锁定内存总线，防止其他线程的访问。同时，CAS还有前后的隐藏内存屏障，防止指令重排导致出现预期之外的结果。</p>
+<p>如果一个线程尝试获取锁，但该锁已经被占用了，那么操作系统就会将该线程阻塞，进入睡眠状态。让出CPU资源，避免无效的CPU占用。只有到这个锁占用结束了，再从等待队列中唤醒一个或多个锁。在这个流程中，会通过系统调用进入内核空间，存储内核态和用户态的切换。</p>
+<blockquote>
+<p>在 Linux 系统中，futex（快速用户空间互斥体）就是与 mutex 紧密相关的底层机制 。futex 的设计理念非常巧妙，它结合了用户空间和内核空间的优势 。当线程尝试获取锁时，首先会在用户空间进行快速检查，如果锁可用，直接在用户空间获取锁，避免进入内核空间，大大提高了效率 。</p>
+</blockquote>
+<p>当然，futex的设计非常符合直觉，但这一直觉的前提是基于mutex的底层使用了CAS原子内存读写方法。在futex之前，都是只用信号量的PV操作，每次的PV操作都相当于一次内核态和用户态的切换。</p>
+<h2 id="C-的常用锁"><a href="#C-的常用锁" class="headerlink" title="C++的常用锁"></a>C++的常用锁</h2><p>最简单用法：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mutex.lock, mutex.unlock</span><br></pre></td></tr></table></figure>
+
+<p>在场景复杂的情况下，编程者常常忘了要释放锁。所以在开发整，更推荐使用RAII包装的锁：<br><code>std::lock_guard&lt;std::mutex&gt; lock(g_mutex);</code>。能够在析构的时候自动解锁。<br>如果需要锁定多个互斥量，可以使用scoped_lock:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">std::mutex mtx1, mtx2;  </span><br><span class="line">&#123;  </span><br><span class="line">    <span class="function">std::scoped_lock <span class="title">lock</span><span class="params">(mtx1, mtx2)</span></span>; <span class="comment">// C++17起支持，自动解决多锁死锁问题  </span></span><br><span class="line">    <span class="comment">/* ...操作... */</span>  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>scoped_lock是一种简单不会造成死锁的为多个资源提供同时保护的工具。它的底层也比较直接，如果无法一次性获得所有的锁资源，它会释放先前获得的资源，然后过一段时间再次尝试。</p>
+<h2 id="其他锁"><a href="#其他锁" class="headerlink" title="其他锁"></a>其他锁</h2><h3 id="mutex和自旋锁"><a href="#mutex和自旋锁" class="headerlink" title="mutex和自旋锁"></a>mutex和自旋锁</h3><p>自旋锁是一种特殊的同步机制，它与 mutex 有着显著的区别 。当一个线程尝试获取自旋锁时，如果锁已经被其他线程持有，它不会像 mutex 那样将线程阻塞，而是进入一个循环，不断地检查锁的状态，这个过程被称为 “自旋” 。</p>
+<p>自旋锁的优点在于响应速度快，因为它避免了线程阻塞和唤醒所带来的开销 。在锁被占用时间非常短的情况下，自旋等待所花费的时间远远小于线程阻塞的开销，此时使用自旋锁可以提高程序的运行效率 。比如，在多核 CPU 环境中，当一个线程在某个核心上自旋时，不会影响其他核心上线程的正常工作，自旋锁能发挥出较好的性能 。</p>
+<p>然而，自旋锁也有明显的缺点 。由于线程在自旋时会一直占用 CPU 进行 “空转”，不断地检查锁的状态，这会浪费大量的 CPU 资源 。如果锁被占用的时间很长，自旋的线程会持续占用 CPU，不仅自身无法高效工作，还可能导致其他线程没有足够的 CPU 时间来执行任务，甚至出现 “饿死” 的情况 。</p>
+<p>相比之下，mutex 在锁被占用时，会将线程阻塞，使其进入睡眠状态，让出 CPU 资源，避免了无效的 CPU 占用 。当锁的持有时间较长时，mutex 的这种机制可以有效减少 CPU 的浪费，提高系统整体性能 。所以，在锁持有时间较长、资源竞争不频繁的场景下，mutex 是更好的选择；而在锁持有时间极短、对响应速度要求极高且资源竞争频繁的场景中，自旋锁则更具优势 。</p>
+<p>自旋锁的适用场景有高频交易，实时游戏引擎，高性能网络设备。</p>
+<h3 id="mutex和读写锁"><a href="#mutex和读写锁" class="headerlink" title="mutex和读写锁"></a>mutex和读写锁</h3><p>mutex本身不区分读写，读写锁非常适合读多写少的场景^^<br>只用mutex就可以实现读写锁。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">DualMutexRWLock</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">mutable</span> std::mutex read_mtx;    <span class="comment">// 保护读者计数</span></span><br><span class="line">    <span class="keyword">mutable</span> std::mutex write_mtx;   <span class="comment">// 写者互斥</span></span><br><span class="line">    <span class="keyword">mutable</span> <span class="type">int</span> readers = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">lock_shared</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        read_mtx.<span class="built_in">lock</span>();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (++readers == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="comment">// 第一个读者需要阻止写者</span></span><br><span class="line">            write_mtx.<span class="built_in">lock</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        read_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">unlock_shared</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        read_mtx.<span class="built_in">lock</span>();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (--readers == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 最后一个读者释放写锁</span></span><br><span class="line">            write_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        read_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 写者直接获取写锁，这会阻止新的读者</span></span><br><span class="line">        write_mtx.<span class="built_in">lock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        write_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这个实现有个问题：可能导致写者饥饿</span></span><br><span class="line"><span class="comment">// 因为只要有读者持续到来，写者就永远无法获得锁</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ThreeMutexRWLock</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">mutable</span> std::mutex read_mtx;     <span class="comment">// 保护读者计数</span></span><br><span class="line">    <span class="keyword">mutable</span> std::mutex write_mtx;    <span class="comment">// 写者互斥</span></span><br><span class="line">    <span class="keyword">mutable</span> std::mutex order_mtx;    <span class="comment">// 保证公平性</span></span><br><span class="line">    <span class="keyword">mutable</span> <span class="type">int</span> readers = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">lock_shared</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        order_mtx.<span class="built_in">lock</span>();  <span class="comment">// 确保读者和写者按顺序获取锁</span></span><br><span class="line">        read_mtx.<span class="built_in">lock</span>();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (++readers == <span class="number">1</span>) &#123;</span><br><span class="line">            write_mtx.<span class="built_in">lock</span>();  <span class="comment">// 第一个读者阻止写者</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        read_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">        order_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">unlock_shared</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        read_mtx.<span class="built_in">lock</span>();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (--readers == <span class="number">0</span>) &#123;</span><br><span class="line">            write_mtx.<span class="built_in">unlock</span>();  <span class="comment">// 最后一个读者允许写者</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        read_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">lock</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        order_mtx.<span class="built_in">lock</span>();   <span class="comment">// 写者也要遵守顺序</span></span><br><span class="line">        write_mtx.<span class="built_in">lock</span>();   <span class="comment">// 获取写锁</span></span><br><span class="line">        order_mtx.<span class="built_in">unlock</span>(); <span class="comment">// 释放顺序锁，允许后续操作排队</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">unlock</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        write_mtx.<span class="built_in">unlock</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mutex%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">mutex底层原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-%E7%9A%84%E5%B8%B8%E7%94%A8%E9%94%81"><span class="toc-number">2.</span> <span class="toc-text">C++的常用锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%94%81"><span class="toc-number">3.</span> <span class="toc-text">其他锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mutex%E5%92%8C%E8%87%AA%E6%97%8B%E9%94%81"><span class="toc-number">3.1.</span> <span class="toc-text">mutex和自旋锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mutex%E5%92%8C%E8%AF%BB%E5%86%99%E9%94%81"><span class="toc-number">3.2.</span> <span class="toc-text">mutex和读写锁</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&text=C++的mutex"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&is_video=false&description=C++的mutex"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的mutex&body=Check out this article: https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&title=C++的mutex"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&name=C++的mutex&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/11/C++%E7%9A%84mutex/&t=C++的mutex"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

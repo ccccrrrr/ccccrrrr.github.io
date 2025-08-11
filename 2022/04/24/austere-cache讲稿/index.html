@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="Austere Flash Cache with Deduplication and Compression有关闪存缓存当计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。 而在过去的很多研究中都使用了SSD作为闪存缓存介质，因本身具有的性质能够保证它作为闪存缓存介质">
+    <meta name="description" content="Austere Flash Cache with Deduplication and Compression有关闪存缓存当 计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。 而在过去的很多研究中都使用了SSD作为闪存缓存介质，因本身具有的性质能够保证它作为闪存缓存介">
 <meta property="og:type" content="article">
 <meta property="og:title" content="austere cache讲稿">
 <meta property="og:url" content="https://ccccrrrr.github.io/2022/04/24/austere-cache%E8%AE%B2%E7%A8%BF/index.html">
 <meta property="og:site_name" content="从蓉的博客">
-<meta property="og:description" content="Austere Flash Cache with Deduplication and Compression有关闪存缓存当计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。 而在过去的很多研究中都使用了SSD作为闪存缓存介质，因本身具有的性质能够保证它作为闪存缓存介质">
+<meta property="og:description" content="Austere Flash Cache with Deduplication and Compression有关闪存缓存当 计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。 而在过去的很多研究中都使用了SSD作为闪存缓存介质，因本身具有的性质能够保证它作为闪存缓存介">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-04-24T12:50:04.000Z">
-<meta property="article:modified_time" content="2022-04-24T13:09:10.000Z">
+<meta property="article:modified_time" content="2025-08-11T15:43:39.989Z">
 <meta property="article:author" content="从蓉">
 <meta property="article:tag" content="讲稿">
 <meta name="twitter:card" content="summary">
@@ -60,10 +60,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
-<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
-  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
     
@@ -128,7 +125,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Austere-Flash-Cache-with-Deduplication-and-Compression"><span class="toc-number">1.</span> <span class="toc-text">Austere Flash Cache with Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E5%85%B3%E9%97%AA%E5%AD%98%E7%BC%93%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">有关闪存缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">1.2.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-amp-Compression"><span class="toc-number">1.2.1.</span> <span class="toc-text">Deduplication &amp; Compression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flash-Caching"><span class="toc-number">1.2.2.</span> <span class="toc-text">Flash Caching</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">1.3.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-sized-Compressed-Data-Management"><span class="toc-number">1.3.1.</span> <span class="toc-text">Fixed-sized Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">1.3.2.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Austere-Flash-Cache-with-Deduplication-and-Compression"><span class="toc-number">1.</span> <span class="toc-text">Austere Flash Cache with Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E5%85%B3%E9%97%AA%E5%AD%98%E7%BC%93%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">有关闪存缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">1.2.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-Compression"><span class="toc-number">1.2.1.</span> <span class="toc-text">Deduplication &amp; Compression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flash-Caching"><span class="toc-number">1.2.2.</span> <span class="toc-text">Flash Caching</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">1.3.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-sized-Compressed-Data-Management"><span class="toc-number">1.3.1.</span> <span class="toc-text">Fixed-sized Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">1.3.2.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li></ol></li></ol>
       </div>
     
   </span>
@@ -178,7 +175,7 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <h1 id="Austere-Flash-Cache-with-Deduplication-and-Compression"><a href="#Austere-Flash-Cache-with-Deduplication-and-Compression" class="headerlink" title="Austere Flash Cache with Deduplication and Compression"></a>Austere Flash Cache with Deduplication and Compression</h1><h2 id="有关闪存缓存"><a href="#有关闪存缓存" class="headerlink" title="有关闪存缓存"></a>有关闪存缓存</h2><p>当计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。</p>
+    <h1 id="Austere-Flash-Cache-with-Deduplication-and-Compression"><a href="#Austere-Flash-Cache-with-Deduplication-and-Compression" class="headerlink" title="Austere Flash Cache with Deduplication and Compression"></a>Austere Flash Cache with Deduplication and Compression</h1><h2 id="有关闪存缓存"><a href="#有关闪存缓存" class="headerlink" title="有关闪存缓存"></a>有关闪存缓存</h2><p>当 计算机处理大量数据密集型工作时，对于硬盘的IO吞吐率和读写性能要求尤其高，但目前硬盘的性能远没有达到处理机的性能。因此，当想要更高效地去处理这类工作，可以在硬盘之上增加一层闪存缓存。</p>
 <p>而在过去的很多研究中都使用了SSD作为闪存缓存介质，因本身具有的性质能够保证它作为闪存缓存介质有着很好的表现。比如说SSD具有</p>
 <ol>
 <li>高IO吞吐率</li>
@@ -197,7 +194,7 @@
 </ol>
 <p>对于解决第一个问题，直观的想法就是去删除SSD缓存中的重复数据，并将缓存中的数据压缩地尽可能紧凑。这也是经常被运用到的两种技术：deduplication和compression。相对应的，<del>不同于使用硬件实现的逻辑地址-物理地址的映射，</del>在cache中实现去重和压缩必然会<del>增加SSD的写次数，并且</del>给内存带来负担。有时，因为data reduction的效率过低，只能放弃deduplication和compression。</p>
 <h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>为了能将这两个技术应用的flash cache中，首先需要去了解deduplication和compression的概念和基本的操作流程，以及因为什么会导致大量的内存消耗。</p>
-<h3 id="Deduplication-amp-Compression"><a href="#Deduplication-amp-Compression" class="headerlink" title="Deduplication &amp; Compression"></a>Deduplication &amp; Compression</h3><p>首先是deduplication。首先，在论文中，或者是在flash cache中，是以块大小来存储的，因此关注的也是块级别，KB级别的数据重复。为了能快速判断两个chunk内容是否完全相等，可以使用统一的加密哈希计算得到footprint(FP)。由于两个不同的chunk对应完全相同的FP的概率几乎可以忽略不计，我们认为FP不同，chunk不同；FP相同，chunk相同。</p>
+<h3 id="Deduplication-Compression"><a href="#Deduplication-Compression" class="headerlink" title="Deduplication &amp; Compression"></a>Deduplication &amp; Compression</h3><p>首先是deduplication。首先，在论文中，或者是在flash cache中，是以块大小来存储的，因此关注的也是块级别，KB级别的数据重复。为了能快速判断两个chunk内容是否完全相等，可以使用统一的加密哈希计算得到footprint(FP)。由于两个不同的chunk对应完全相同的FP的概率几乎可以忽略不计，我们认为FP不同，chunk不同；FP相同，chunk相同。</p>
 <p>那么我们期望的deduplication后的结果，在SSD中储存的所有chunk都是不同的，并且在请求访问HDD中的某一个位置时，如果有缓存，能够知道它对应的SSD中的chunk是哪个。</p>
 <p>“有关chunk是大小可变的还是固定大小的的选择“</p>
 <p>压缩操作一般来说会在去重操作之后执行。它是在字节级别将数据进行压缩，因此压缩之后的chunk都是大小可变的。</p>
@@ -271,7 +268,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Austere-Flash-Cache-with-Deduplication-and-Compression"><span class="toc-number">1.</span> <span class="toc-text">Austere Flash Cache with Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E5%85%B3%E9%97%AA%E5%AD%98%E7%BC%93%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">有关闪存缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">1.2.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-amp-Compression"><span class="toc-number">1.2.1.</span> <span class="toc-text">Deduplication &amp; Compression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flash-Caching"><span class="toc-number">1.2.2.</span> <span class="toc-text">Flash Caching</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">1.3.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-sized-Compressed-Data-Management"><span class="toc-number">1.3.1.</span> <span class="toc-text">Fixed-sized Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">1.3.2.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Austere-Flash-Cache-with-Deduplication-and-Compression"><span class="toc-number">1.</span> <span class="toc-text">Austere Flash Cache with Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E5%85%B3%E9%97%AA%E5%AD%98%E7%BC%93%E5%AD%98"><span class="toc-number">1.1.</span> <span class="toc-text">有关闪存缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">1.2.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-Compression"><span class="toc-number">1.2.1.</span> <span class="toc-text">Deduplication &amp; Compression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flash-Caching"><span class="toc-number">1.2.2.</span> <span class="toc-text">Flash Caching</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">1.3.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-sized-Compressed-Data-Management"><span class="toc-number">1.3.1.</span> <span class="toc-text">Fixed-sized Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">1.3.2.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li></ol></li></ol>
       </div>
     
 

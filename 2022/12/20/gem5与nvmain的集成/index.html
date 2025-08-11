@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="由于NVMain已经停止维护很久了，直接与新的gem5集成会出现很多错误，只能选取老版本的gem5进行协同编译。老版本的编译会遇到一些问题，在这里罗列出来，以免后面还有人需要使用NVMain但不知道该如何运行它。 工具下载 下载已经经过patch的源代码。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。 推荐使用docker。笔者之前使用Ubuntu22.04遇到了非常多的warnin">
+    <meta name="description" content="由于NVMain已经停止维护很久了，直接与新的gem5集成会出现很多错误，只能选取老版本的gem5进行协同编译。老版本的编译会遇到一些问题，在这里罗列出来，以免后面还有人需要使用NVMain但不知道该如何运行它。 工具下载下载已经经过patch的源代码。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。 推荐使用docker。笔者之前使用Ubuntu22.04遇到了非常多的warning">
 <meta property="og:type" content="article">
 <meta property="og:title" content="gem5与nvmain的集成">
 <meta property="og:url" content="https://ccccrrrr.github.io/2022/12/20/gem5%E4%B8%8Envmain%E7%9A%84%E9%9B%86%E6%88%90/index.html">
 <meta property="og:site_name" content="从蓉的博客">
-<meta property="og:description" content="由于NVMain已经停止维护很久了，直接与新的gem5集成会出现很多错误，只能选取老版本的gem5进行协同编译。老版本的编译会遇到一些问题，在这里罗列出来，以免后面还有人需要使用NVMain但不知道该如何运行它。 工具下载 下载已经经过patch的源代码。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。 推荐使用docker。笔者之前使用Ubuntu22.04遇到了非常多的warnin">
+<meta property="og:description" content="由于NVMain已经停止维护很久了，直接与新的gem5集成会出现很多错误，只能选取老版本的gem5进行协同编译。老版本的编译会遇到一些问题，在这里罗列出来，以免后面还有人需要使用NVMain但不知道该如何运行它。 工具下载下载已经经过patch的源代码。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。 推荐使用docker。笔者之前使用Ubuntu22.04遇到了非常多的warning">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-12-20T10:43:34.000Z">
 <meta property="article:modified_time" content="2022-12-20T10:43:34.963Z">
@@ -61,10 +61,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
-<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
-  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
-<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head>
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
     
@@ -175,16 +172,14 @@
 
   <div class="content e-content" itemprop="articleBody">
     <p>由于NVMain已经停止维护很久了，直接与新的gem5集成会出现很多错误，只能选取老版本的gem5进行协同编译。老版本的编译会遇到一些问题，在这里罗列出来，以免后面还有人需要使用NVMain但不知道该如何运行它。</p>
-<h2 id="工具下载">工具下载</h2>
-<p>下载已经经过patch的<a target="_blank" rel="noopener" href="https://github.com/cyjseagull/gem5-nvmain-hybrid-simulator">源代码</a>。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。</p>
+<h2 id="工具下载"><a href="#工具下载" class="headerlink" title="工具下载"></a>工具下载</h2><p>下载已经经过patch的<a target="_blank" rel="noopener" href="https://github.com/cyjseagull/gem5-nvmain-hybrid-simulator">源代码</a>。在这个仓库中已经准备好了旧版本的gem5，以及nvmain。</p>
 <p>推荐使用docker。笔者之前使用Ubuntu22.04遇到了非常多的warning和bug，即使全部解决了集成也没有成功。在此使用的是Ubuntu18.04进行编译。如果读者没有Ubuntu18，或者不想再进行过多的环境配置，使用docker是最简单的方案。</p>
-<h2 id="环境构建">环境构建</h2>
-<p>构建的docker file如下：</p>
+<h2 id="环境构建"><a href="#环境构建" class="headerlink" title="环境构建"></a>环境构建</h2><p>构建的docker file如下：</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /simulator</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt -y update</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt -y upgrade</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt -y install python2.7 g++ scons vim swig m4 mercurial python-dev zlib1g-dev libprotobuf-dev protobuf-compiler libprotoc-dev libgoogle-perftools-dev</span></span><br></pre></td></tr></table></figure>
+
 <p>使用<code>docker build -t gem5-nvmain .</code>指令构建出镜像。下载依赖需要几分钟的时间。</p>
-<p>然后，使用<code>docker run -it -v ～/simulator/gem5-nvmain-hybrid-simulator:/simulator/gem5-nvmain -it gem5-nvmain</code>将下载好的源代码挂载到创建容器的/simulator目录下。就完成了基本的环境构建。</p>
-<h2 id="编译">编译</h2>
-<p>在gem5-stable目录下运行<code>scons EXTRAS=nvmain-path -j4 build/X86/gem5.opt</code>即可开始编译。</p>
+<p>然后，使用<code>docker run -it -v ～/simulator/gem5-nvmain-hybrid-simulator:/simulator/gem5-nvmain -it gem5-nvmain</code>将下载好的源代码挂载到创建容器的&#x2F;simulator目录下。就完成了基本的环境构建。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>在gem5-stable目录下运行<code>scons EXTRAS=nvmain-path -j4 build/X86/gem5.opt</code>即可开始编译。</p>
 <p>编译过程<a target="_blank" rel="noopener" href="https://blog.csdn.net/qqq_11101/article/details/56682344">参考博客</a>，在此篇博客中提到了两个坑我都遇到了，如果出现deprecated警告或者有关LO_Cache的报错可以使用该博客中的方法解决问题。</p>
 <p>大概几分钟过后就编译完成啦^_^</p>
 
