@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="参考文章，进行一个简单的翻译 同时，更多的参考了2008年出版的Memory System的第十章内容。 目前使用DRAM的基本架构为Processor &lt;&#x3D;&gt; Memory Controller &lt;&#x3D;&gt; DRAM。 其中DRAM中包含了Channel &#x3D;&gt; Rank &#x3D;&gt; Chip &#x3D;&gt; Bank &amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DRAM的整体架构（简单翻译）">
+<meta property="og:url" content="https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="参考文章，进行一个简单的翻译 同时，更多的参考了2008年出版的Memory System的第十章内容。 目前使用DRAM的基本架构为Processor &lt;&#x3D;&gt; Memory Controller &lt;&#x3D;&gt; DRAM。 其中DRAM中包含了Channel &#x3D;&gt; Rank &#x3D;&gt; Chip &#x3D;&gt; Bank &amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/GBilDndh2HE96YW.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/E9xmkepz5HbZi7D.png">
+<meta property="og:image" content="https://ccccrrrr.github.io/Users/ccrr/Library/Application%20Support/typora-user-images/image-20221222105415750.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/6qchDSWQlZLbAzC.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/7HF3z5RGOeJaM1I.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/5lZtc6WkpgzyNDI.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/vYngWu4xR3HqjT8.png">
+<meta property="og:image" content="https://s2.loli.net/2022/12/22/qyN8DWbRG4J32MX.png">
+<meta property="article:published_time" content="2022-12-22T06:28:21.000Z">
+<meta property="article:modified_time" content="2022-12-22T06:28:21.573Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="DRAM">
+<meta property="article:tag" content="memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/12/22/GBilDndh2HE96YW.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>DRAM的整体架构（简单翻译）</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/05/02/%E6%97%A5%E8%AE%B0%E8%AE%B0%E5%BD%952/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/12/20/docker%E5%AD%A6%E4%B9%A0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&text=DRAM的整体架构（简单翻译）"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&is_video=false&description=DRAM的整体架构（简单翻译）"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DRAM的整体架构（简单翻译）&body=Check out this article: https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&name=DRAM的整体架构（简单翻译）&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&t=DRAM的整体架构（简单翻译）"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Channel"><span class="toc-number">1.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank"><span class="toc-number">2.</span> <span class="toc-text">Rank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bank"><span class="toc-number">3.</span> <span class="toc-text">Bank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DRAM-Subarray%EF%BC%88Array%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">DRAM Subarray（Array）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Row"><span class="toc-number">5.</span> <span class="toc-text">Row</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Column"><span class="toc-number">6.</span> <span class="toc-text">Column</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        DRAM的整体架构（简单翻译）
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-12-22T06:28:21.000Z" class="dt-published" itemprop="datePublished">2022-12-22</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/DRAM/" rel="tag">DRAM</a>, <a class="p-category" href="/tags/memory/" rel="tag">memory</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><a target="_blank" rel="noopener" href="https://hackmd.io/@WeiCheng14159/SyW1xGBId">参考文章</a>，进行一个简单的翻译</p>
+<p>同时，更多的参考了2008年出版的Memory System的第十章内容。</p>
+<p>目前使用DRAM的基本架构为Processor &lt;&#x3D;&gt; Memory Controller &lt;&#x3D;&gt; DRAM。</p>
+<p>其中DRAM中包含了Channel &#x3D;&gt; Rank &#x3D;&gt; Chip &#x3D;&gt; Bank &#x3D;&gt; Subarray &#x3D;&gt; Mat &#x3D;&gt; Row, Column &#x3D;&gt; Cell，下面介绍这些术语具体含义。</p>
+<h2 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h2><blockquote>
+<p>A channel is the <strong>collection of all banks</strong> that share <strong>a common physical link</strong> (command, address, data buses) to the processor.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/GBilDndh2HE96YW.png" alt="image.png" style="zoom: 67%;" />
+
+<p>在上图中，可以看到第一种设计只有一个channel。第二种和第三种设计，一个Memory Controller有两个通道，这两个通道协同运行。这种channel被称为物理通道。</p>
+<p>而下图则是逻辑上的通道，使用了多个内存控制器进行实现。</p>
+<img src="https://s2.loli.net/2022/12/22/E9xmkepz5HbZi7D.png" alt="image.png" style="zoom:67%;" />
+
+<p>书中、博客中对于通道并没有非常明确的定义。但在研究过程中，我认为第一种情况更常出现。多控制器似乎并不在考虑范围之内。</p>
+<h2 id="Rank"><a href="#Rank" class="headerlink" title="Rank"></a>Rank</h2><p>Rank代表了一组DRAM设备，这些设备会同时工作相应一个给定的指令。</p>
+<img src="/Users/ccrr/Library/Application Support/typora-user-images/image-20221222105415750.png" alt="image-20221222105415750" style="zoom: 67%;" />
+
+<p>上图中给出了一个简单的内存拓扑图，其中有两个rank，每个rank中有4个DRAM device。address和command线路连接了每一个设备。在该设计中使用chip-select来选择对应的rank来处理指令。而data bus被分隔成了4部分，分别连接不同的DRAM设备。</p>
+<p>那么显然，这里提到的DRAM device和chip两个术语是对应的。</p>
+<h2 id="Bank"><a href="#Bank" class="headerlink" title="Bank"></a>Bank</h2><p>bank是一系列在DRAM设备内部的独立内存阵列的集合。</p>
+<img src="https://s2.loli.net/2022/12/22/6qchDSWQlZLbAzC.png" alt="image.png" style="zoom:67%;" />
+
+<p>在这个内存设备中，有4个bank，每个bank都有非常多的DRAM阵列。</p>
+<blockquote>
+<p>the multi-bank architecture allows commands such as read requests to different banks to be pipelined. Certain commands, such as refresh commands, can also be engaged in multiple banks in parallel.</p>
+</blockquote>
+<p>可以认为，multi-bank的设计能够更大程度的促进设备的并行性。</p>
+<h2 id="DRAM-Subarray（Array）"><a href="#DRAM-Subarray（Array）" class="headerlink" title="DRAM Subarray（Array）"></a>DRAM Subarray（Array）</h2><p>其中，一个bank还会呗分成非常多的tile。一整行的tile就被称为一个subarray。而所有的subarray加起来就是DRAM array。</p>
+<img src="https://s2.loli.net/2022/12/22/7HF3z5RGOeJaM1I.png" alt="image.png" style="zoom:67%;" />
+
+
+
+<h2 id="Row"><a href="#Row" class="headerlink" title="Row"></a>Row</h2><blockquote>
+<p>a <em>row</em> is simply a group of stor- age cells that are activated in parallel in response to a row activation command.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/5lZtc6WkpgzyNDI.png" alt="image.png" style="zoom:67%;" />
+
+
+
+<p>在一个rank中包含了4个bank，</p>
+<h2 id="Column"><a href="#Column" class="headerlink" title="Column"></a>Column</h2><p>Column of data is the smallest addressable unit of memory.</p>
+<blockquote>
+<p>The size of a column of data is the same as the width of the data bus.</p>
+</blockquote>
+<img src="https://s2.loli.net/2022/12/22/vYngWu4xR3HqjT8.png" alt="image.png" style="zoom:67%;" />
+
+<p>对于subarray，row，column来说，可以用博客中的一张图进行理解（由于书本中并没有提及subarray，我也无法了解更多关于它的定义。）</p>
+<p><img src="https://s2.loli.net/2022/12/22/qyN8DWbRG4J32MX.png" alt="image.png"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Channel"><span class="toc-number">1.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank"><span class="toc-number">2.</span> <span class="toc-text">Rank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bank"><span class="toc-number">3.</span> <span class="toc-text">Bank</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DRAM-Subarray%EF%BC%88Array%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">DRAM Subarray（Array）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Row"><span class="toc-number">5.</span> <span class="toc-text">Row</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Column"><span class="toc-number">6.</span> <span class="toc-text">Column</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&text=DRAM的整体架构（简单翻译）"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&is_video=false&description=DRAM的整体架构（简单翻译）"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DRAM的整体架构（简单翻译）&body=Check out this article: https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&title=DRAM的整体架构（简单翻译）"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&name=DRAM的整体架构（简单翻译）&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2022/12/22/%E5%86%85%E5%AD%98/DRAM%E6%9E%B6%E6%9E%84%E5%9F%BA%E7%A1%80/&t=DRAM的整体架构（简单翻译）"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

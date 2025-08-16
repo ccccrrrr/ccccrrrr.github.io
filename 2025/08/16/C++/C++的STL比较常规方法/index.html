@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="在写算法题、使用C++开发的过程中，经常需要使用到STL来存取大量的有序数据，并且排序算法并不一定是简单的比大小，需要用户来自定义复杂的比较逻辑。由于本人在写leetcode时常常忘记比较算法，因此特别记录一下。 创建比较类第一种标准办法是自定义Comparator类，并且定义一个operator()的比较方法。 123456789101112131415161718192021222324252">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++的STL比较方法">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="在写算法题、使用C++开发的过程中，经常需要使用到STL来存取大量的有序数据，并且排序算法并不一定是简单的比大小，需要用户来自定义复杂的比较逻辑。由于本人在写leetcode时常常忘记比较算法，因此特别记录一下。 创建比较类第一种标准办法是自定义Comparator类，并且定义一个operator()的比较方法。 123456789101112131415161718192021222324252">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-16T12:19:16.000Z">
+<meta property="article:modified_time" content="2025-08-16T10:11:26.008Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="Algo Diary">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++的STL比较方法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/08/11/C++/C++%E7%9A%84mutex/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&text=C++的STL比较方法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&is_video=false&description=C++的STL比较方法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的STL比较方法&body=Check out this article: https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&name=C++的STL比较方法&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&t=C++的STL比较方法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%AF%94%E8%BE%83%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">创建比较类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAlambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">创建lambda表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%BA%95%E5%B1%82%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">lambda表达式的底层分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#lambda%E7%9A%84%E6%8D%95%E8%8E%B7"><span class="toc-number">2.1.1.</span> <span class="toc-text">lambda的捕获</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++的STL比较方法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-08-16T12:19:16.000Z" class="dt-published" itemprop="datePublished">2025-08-16</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/C/">C++</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>在写算法题、使用C++开发的过程中，经常需要使用到STL来存取大量的有序数据，并且排序算法并不一定是简单的比大小，需要用户来自定义复杂的比较逻辑。由于本人在写leetcode时常常忘记比较算法，因此特别记录一下。</p>
+<h2 id="创建比较类"><a href="#创建比较类" class="headerlink" title="创建比较类"></a>创建比较类</h2><p>第一种标准办法是自定义Comparator类，并且定义一个operator()的比较方法。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode() : val(0), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(nullptr) &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x, ListNode *next) : val(x), next(next) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Comparator</span> &#123;</span><br><span class="line">        <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="type">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="type">const</span> ListNode* node1, <span class="type">const</span> ListNode* node2)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> node1-&gt;val &gt; node2-&gt;val;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="function">ListNode* <span class="title">mergeKLists</span><span class="params">(vector&lt;ListNode*&gt;&amp; lists)</span> </span>&#123;</span><br><span class="line">        ListNode new_head = <span class="built_in">ListNode</span>();</span><br><span class="line">        ListNode* ptr = &amp;new_head;</span><br><span class="line">        priority_queue&lt;ListNode*, vector&lt;ListNode*&gt;, Comparator&gt; pq;</span><br><span class="line">        <span class="type">int</span> k = lists.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; k; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span>(lists[i] != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">                pq.<span class="built_in">push</span>(lists[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(!pq.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            ListNode* node = pq.<span class="built_in">top</span>();</span><br><span class="line">            ptr-&gt;next = node;</span><br><span class="line">            ptr = ptr-&gt;next;</span><br><span class="line">            pq.<span class="built_in">pop</span>();</span><br><span class="line">            <span class="keyword">if</span>(node-&gt;next) &#123;</span><br><span class="line">                pq.<span class="built_in">push</span>(node-&gt;next);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> new_head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="创建lambda表达式"><a href="#创建lambda表达式" class="headerlink" title="创建lambda表达式"></a>创建lambda表达式</h2><p>第二种办法是创建一个lambda表达式。与创建一个类最不同的是，需要使用decltype，并且如果是priority_queue</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">ListNode* <span class="title">mergeKLists</span><span class="params">(vector&lt;ListNode*&gt;&amp; lists)</span> </span>&#123;</span><br><span class="line">        ListNode new_head = <span class="built_in">ListNode</span>();</span><br><span class="line">        ListNode* ptr = &amp;new_head;</span><br><span class="line">        <span class="keyword">auto</span> comp = [](<span class="type">const</span> ListNode* node1, <span class="type">const</span> ListNode* node2) &#123;</span><br><span class="line">            <span class="keyword">return</span> node1-&gt;val &gt; node2-&gt;val;</span><br><span class="line">        &#125;;</span><br><span class="line">        priority_queue&lt;ListNode*, vector&lt;ListNode*&gt;, <span class="keyword">decltype</span>(comp)&gt; <span class="built_in">pq</span>(comp);</span><br><span class="line">        <span class="type">int</span> k = lists.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; k; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span>(lists[i] != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">                pq.<span class="built_in">push</span>(lists[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(!pq.<span class="built_in">empty</span>()) &#123;</span><br><span class="line">            ListNode* node = pq.<span class="built_in">top</span>();</span><br><span class="line">            ptr-&gt;next = node;</span><br><span class="line">            ptr = ptr-&gt;next;</span><br><span class="line">            pq.<span class="built_in">pop</span>();</span><br><span class="line">            <span class="keyword">if</span>(node-&gt;next) &#123;</span><br><span class="line">                pq.<span class="built_in">push</span>(node-&gt;next);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> new_head.next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="lambda表达式的底层分析"><a href="#lambda表达式的底层分析" class="headerlink" title="lambda表达式的底层分析"></a>lambda表达式的底层分析</h3><p>我们可以看到，lambda表达式比起定义一个类，再写一个operator()这样的函数会简单一些。但实际上，lambda表达式的本质就是一个匿名类。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">__lambda_xxx</span> &#123; </span><br><span class="line"><span class="keyword">public</span>: </span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="type">const</span> ListNode* node1, <span class="type">const</span> ListNode* node2)</span> <span class="type">const</span> </span>&#123; </span><br><span class="line">	<span class="keyword">return</span> node1-&gt;val &gt; node2-&gt;val; </span><br><span class="line">&#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>decl(comp)</code>实际上只是一个类型。所以我们还需要在priority_queue中使用pq(comp)来传递一个实例。<br>当然，这只是最简单的lambda表达式表现方式。lambda表达式另一个更有特点的地方在于它的捕获，可以让lambda表达式内部能修改外面的变量。</p>
+<h4 id="lambda的捕获"><a href="#lambda的捕获" class="headerlink" title="lambda的捕获"></a>lambda的捕获</h4><ul>
+<li>按值捕获</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line">string name = <span class="string">&quot;test&quot;</span>;</span><br><span class="line"><span class="keyword">auto</span> comp = [=](<span class="type">int</span> a) &#123;</span><br><span class="line">    <span class="keyword">return</span> a &gt; x &amp;&amp; name.<span class="built_in">length</span>() &gt; <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>就是把所有的值都拷贝存储，生成的类就是：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">__lambda_xxx</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span> x;           <span class="comment">// 拷贝存储</span></span><br><span class="line">    string name;     <span class="comment">// 拷贝存储</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    __lambda_xxx(<span class="type">int</span> x_val, <span class="type">const</span> string&amp; name_val) </span><br><span class="line">        : <span class="built_in">x</span>(x_val), <span class="built_in">name</span>(name_val) &#123;&#125;  <span class="comment">// 拷贝构造</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="type">int</span> a)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a &gt; x &amp;&amp; name.<span class="built_in">length</span>() &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>按引用捕获</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line">string name = <span class="string">&quot;test&quot;</span>;</span><br><span class="line"><span class="keyword">auto</span> comp = [&amp;](<span class="type">int</span> a) &#123;</span><br><span class="line">    x++;  <span class="comment">// 可以修改原变量</span></span><br><span class="line">    <span class="keyword">return</span> a &gt; x &amp;&amp; name.<span class="built_in">length</span>() &gt; <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">__lambda_xxx</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="type">int</span>&amp; x;           <span class="comment">// 引用存储</span></span><br><span class="line">    string&amp; name;     <span class="comment">// 引用存储</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    __lambda_xxx(<span class="type">int</span>&amp; x_ref, string&amp; name_ref) </span><br><span class="line">        : <span class="built_in">x</span>(x_ref), <span class="built_in">name</span>(name_ref) &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="type">int</span> a)</span> <span class="type">const</span> </span>&#123;  <span class="comment">// 注意：即使是const，也能通过引用修改外部变量</span></span><br><span class="line">        x++;  <span class="comment">// 修改外部变量</span></span><br><span class="line">        <span class="keyword">return</span> a &gt; x &amp;&amp; name.<span class="built_in">length</span>() &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>当然，也可以按值+按引用选择性地捕获</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line"><span class="type">int</span> y = <span class="number">10</span>;</span><br><span class="line">string name = <span class="string">&quot;test&quot;</span>;</span><br><span class="line"><span class="keyword">auto</span> comp = [&amp;x, y](<span class="type">int</span> a) &#123;  <span class="comment">// x按引用，y按值，name不捕获</span></span><br><span class="line">    x++;</span><br><span class="line">    <span class="keyword">return</span> a &gt; x + y;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>因此，我们可以明显观察到，捕获的元素越多，这个匿名类肯定就越大。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">1</span>;</span><br><span class="line">    <span class="type">double</span> y = <span class="number">2.0</span>;</span><br><span class="line">    std::string s = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">auto</span> lambda1 = [](<span class="type">int</span> a) &#123; <span class="keyword">return</span> a &gt; <span class="number">0</span>; &#125;;           <span class="comment">// 无捕获</span></span><br><span class="line">    <span class="keyword">auto</span> lambda2 = [x](<span class="type">int</span> a) &#123; <span class="keyword">return</span> a &gt; x; &#125;;          <span class="comment">// 捕获int</span></span><br><span class="line">    <span class="keyword">auto</span> lambda3 = [x, y](<span class="type">int</span> a) &#123; <span class="keyword">return</span> a &gt; x + y; &#125;;   <span class="comment">// 捕获int+double</span></span><br><span class="line">    <span class="keyword">auto</span> lambda4 = [x, y, s](<span class="type">int</span> a) &#123; <span class="keyword">return</span> a &gt; x; &#125;;    <span class="comment">// 捕获int+double+string</span></span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;无捕获: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(lambda1) &lt;&lt; <span class="string">&quot; bytes\n&quot;</span>;      <span class="comment">// 通常是1</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;捕获int: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(lambda2) &lt;&lt; <span class="string">&quot; bytes\n&quot;</span>;     <span class="comment">// 4</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;捕获int+double: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(lambda3) &lt;&lt; <span class="string">&quot; bytes\n&quot;</span>; <span class="comment">// 16 (对齐)</span></span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;捕获int+double+string: &quot;</span> &lt;&lt; <span class="built_in">sizeof</span>(lambda4) &lt;&lt; <span class="string">&quot; bytes\n&quot;</span>; <span class="comment">// 48+</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>P.S.: 之前面微信的时候面试官真的问了lambda表达式底层是什么。当时还没有来得及准备C++八股，只能遗憾离场了😎😭。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%AF%94%E8%BE%83%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">创建比较类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAlambda%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">创建lambda表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lambda%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E5%BA%95%E5%B1%82%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">lambda表达式的底层分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#lambda%E7%9A%84%E6%8D%95%E8%8E%B7"><span class="toc-number">2.1.1.</span> <span class="toc-text">lambda的捕获</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&text=C++的STL比较方法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&is_video=false&description=C++的STL比较方法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的STL比较方法&body=Check out this article: https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&title=C++的STL比较方法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&name=C++的STL比较方法&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/16/C++/C++%E7%9A%84STL%E6%AF%94%E8%BE%83%E5%B8%B8%E8%A7%84%E6%96%B9%E6%B3%95/&t=C++的STL比较方法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

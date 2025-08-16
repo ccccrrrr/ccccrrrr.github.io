@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="conventional flash caching flash caching with deduplication and compression  the mappings of each logical address to the physical address of the non-duplicate chunk in the flash cache after deduplicat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Austere Cache">
+<meta property="og:url" content="https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="conventional flash caching flash caching with deduplication and compression  the mappings of each logical address to the physical address of the non-duplicate chunk in the flash cache after deduplicat">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-24T12:49:48.000Z">
+<meta property="article:modified_time" content="2025-05-02T12:30:44.387Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="storage">
+<meta property="article:tag" content="paper">
+<meta property="article:tag" content="cache">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Austere Cache</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/austere-cache%E8%AE%B2%E7%A8%BF/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2022/04/17/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/%E5%AF%BC%E5%BC%B9%E9%98%B2%E5%BE%A1%E7%B3%BB%E7%BB%9F/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&text=Austere Cache"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&is_video=false&description=Austere Cache"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Austere Cache&body=Check out this article: https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&name=Austere Cache&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&t=Austere Cache"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Abstract"><span class="toc-number">1.</span> <span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">2.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">3.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-and-Compression"><span class="toc-number">3.1.</span> <span class="toc-text">Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#duplication"><span class="toc-number">3.1.1.</span> <span class="toc-text">duplication</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">4.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucketization"><span class="toc-number">4.1.</span> <span class="toc-text">Bucketization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-Size-Compressed-Data-Management"><span class="toc-number">4.2.</span> <span class="toc-text">Fixed-Size Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">4.3.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BB%B7"><span class="toc-number">6.</span> <span class="toc-text">评价</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Austere Cache
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-24T12:49:48.000Z" class="dt-published" itemprop="datePublished">2022-04-24</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/storage/">storage</a> › <a class="category-link" href="/categories/storage/paper-translation/">paper translation</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/cache/" rel="tag">cache</a>, <a class="p-category" href="/tags/paper/" rel="tag">paper</a>, <a class="p-category" href="/tags/storage/" rel="tag">storage</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>conventional flash caching</p>
+<p>flash caching with deduplication and compression</p>
+<ol>
+<li>the mappings of each logical address to the physical address of the non-duplicate chunk in the flash cache after deduplication and compression</li>
+<li>flash缓存中所有存储块的密码散列(又称指纹)，用于重复检入重复数据删除</li>
+<li>所有大小可变的压缩块的长度</li>
+</ol>
+<p>传统的deduplication &amp; compression cache将会给内存带来极大负担，在权衡之下并不能很好地使用。</p>
+<p>HDD和SSD的区别</p>
+<p>cache的duplication<br><a target="_blank" rel="noopener" href="https://www.cs.virginia.edu/~smk9u/tian-ics-2014.pdf">参考论文</a></p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>现代存储系统使用flash caching来提高IO性能，并加强空间利用率。flash caching的持久化面对一直在增长的数据密集型工作量一直是一个具有挑战的问题。deduplication和compression是能够有效降低存储和IO工作量的两种技术，然而它们都会因为索引管理增加巨大的内存开销。我们提出了AustereCache，一个新的flash caching 设计，既能做到高效的内存索引，又能保证deduplication和compression带来的减少数据存储的收益。AustereCache强调了Austere cache管理并提出了不同的数据管理和cache替代技术，以便消除过多的索引元数据，并将清凉内存索引结构变得切实可行。trace-driven 实验展示了相较于state-of-the-art flash caching（最先进的闪存缓存），我们的AustereCache原型节省了69.9~97.0%的内存使用，同时还保证了相对可观的读命中和写减少率，获得了高IO吞吐率。</p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>高IO性能对于现代数据集中的电脑来说是至关重要的要求。许多研究（存储架构使用了）提出了SSD作为flash caching位于HDD之上的一层来提升IO性能，例如local file system, web caches, 数据中心和虚拟存储。SSD较之于HDD有许多吸引人的特性，包括了高IO吞吐率，低能耗以及高可靠性。额外的，SSD相较于主存（DRAM）来说成本也更低。但从另一个角度来说，SSD也带来了更多的挑战：它们只有更少的容量，并且更易损坏。因此，为了能支持<strong>高性能</strong>，<strong>缓存尽量多的数据</strong>，同时<strong>减轻写操作带来的损伤</strong>，是一个使用SSD作为cache最为重要的三个问题。</p>
+<p>为了能够减少存储和IO消耗，我们分析了作为消除重复数据的两种算法deduplication和compression。deduplication和compression两者的目标是数据减少的两种不同粒度，并且两两互补：当deduplication移除块级重复内容，是较为粗糙但是操作是轻量级别的；然而compression移除的是字节级别，也就是chunk内部的数据。随着数据的不断增长，deduplication和compression被广泛采用在主存储和备份存储系统中。特别地，最近的研究增加了带有deduplication和compression的flash caching，强调了在巨大的替换单元中管理大小可变的缓存数据或是设计新的缓存替换算法。</p>
+<p>尽管有数据减少的收益，现有的适用于flash caching的deduplication和compression不可避免地导致了对于内存地极大消耗，这也归功于代价极大地索引管理。具体来说，在传统的flash caching中，我们主要跟踪的是逻辑-物理的地址映射（这只是硬件上的消耗，或者是极小的软件消耗）。但当deduplication和coopression都采用之后，我们需要将跟踪一个索引结构</p>
+<p>(i)重复数据删除和压缩后，每个逻辑地址到flash缓存中非重复数据块物理地址的映射<br>(ii)用于重复数据删除检查的所有存储在flash缓存中的块的密码哈希(又称指纹(x2.1))<br>(iii)所有大小可变的压缩块的长度。</p>
+<blockquote>
+<p>迷惑，没懂</p>
+</blockquote>
+<p>它能够所有的索引元数据储存在内存中，保证高性能，然而也加剧了内存消耗，相较于传统的flash caching来说。额外的内存开销，我们成为memory amplification，可以至少扩大16倍，不幸的是数据删除效率只能有所妥协。</p>
+<p>在本篇论文中，我们提出Austere Cache，一个高效内存flash caching设计，运用了deduplication和compression于存储和IO中，并极大地减轻了由于索引结构导致地内存开销。AustereCache在数据储存和cache替换上使用了austere cache management，限制了内存因删除重复数据和压缩导致的内存过量开销。它构建了三个核心技术：</p>
+<ol>
+<li>桶 &#x3D;&gt; 一种轻量级技术，将chunk映射到大小固定的桶中</li>
+<li>固定大小的数据压缩管理 &#x3D;&gt; 避免需要在索引中跟踪压缩之后长度不一的块长度</li>
+<li>基于桶的cache替换 &#x3D;&gt; 使用compact sketch data structure在有限的内存中做出缓存块替换的决策。</li>
+</ol>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="Deduplication-and-Compression"><a href="#Deduplication-and-Compression" class="headerlink" title="Deduplication and Compression"></a>Deduplication and Compression</h3><p>重复数据删除和压缩技术是不同粒度上的删除冗余数据技术。</p>
+<h4 id="duplication"><a href="#duplication" class="headerlink" title="duplication"></a>duplication</h4><p>我们关注的是基于块的重复数据删除，它将数据分成无重叠的数据单元（chunk）。每一个chunk都是唯一，可以被一个fingerprint识别（对块内容使用某种加密哈希算法计算得到）。如果两个chunk的FP相同，我们说它们两块是重复的，不同则是内容不同的（这也是由于两块不同的chunk有相同的FP概率实在是太小了…）。在物理空间上只会保存一块不重复的chunk，但是所有的重复的chunk（在逻辑空间）会使用指针来引用它。同时，它会保存所有FP到物理chunk位置的映射（在index structure中），来达到重复检查和块查找。</p>
+<h2 id="AustereCache-Design"><a href="#AustereCache-Design" class="headerlink" title="AustereCache Design"></a>AustereCache Design</h2><p>AustereCache是一种新的闪存缓存设计，它利用重复数据删除和压缩来实现存储和I&#x2F;O节省，就像之前的工作，但特别强调<strong>减少索引的内存使用</strong>。它的目标是通过三种关键技术实现严格的缓存管理。</p>
+<ul>
+<li><strong>Bucketization</strong>。为了消除在LBA-index和FP-index中维护地址映射的开销，我们利用确定性哈希将块与存储位置关联起来。具体来说，我们将索引条目散列到大小相等的分区(称为桶)中，每个桶都保留部分LBAs和FPs以节省内存。根据桶的位置，我们进一步将块映射到缓存空间。</li>
+<li><strong>固定大小的压缩数据管理</strong>。为了避免在FP-index中跟踪块的长度，我们将可变大小的压缩块视为固定大小的单元。具体来说，我们将可变大小的压缩块划分为较小的固定大小的子块，并在不记录压缩块长度的情况下管理子块。</li>
+<li><strong>基于桶的缓存替换</strong>。为了增加缓存命中的可能性，我们建议在每个桶的基础上进行缓存替换。特别地，我们结合了基于引用计数(即引用每个唯一块的重复副本的计数)的最近性和重复数据删除感知来进行有效的缓存替换。但是，跟踪引用计数会导致不可忽略的内存开销。因此，我们利用一个固定大小的紧凑草图数据结构在有限的内存空间中估计有边界错误的引用计数。</li>
+</ul>
+<h3 id="Bucketization"><a href="#Bucketization" class="headerlink" title="Bucketization"></a>Bucketization</h3><p>首先先不考虑压缩。<br>AustereCache将LBA和FP索引都分成了大小相同的桶，每个桶中有固定，大小相同的slot。同时，将cache的储存区域分成了a metadata region和a data region，分别储存元数据和缓存的chunk。同样地，每一个region也要被分成桶，其中再细分slots。值得注意的是这两个region中桶和slot的数量是和FP-index中的数量对应的，也就是说FP-index中的每一个slot和metadata region、data region中的slot一一对应。<br>为了能减少内存使用（内存中存放了LBA-index和FP-index），每一个slot仅仅会存放键的前缀部分（而不是像传统flash cache一样存放完整的键）。Austere Cache首先计算LBA和FP键的哈希，分别将其前缀存入LBA-hash和FP-hash中，作为主键。当然，只使用前缀进行判断显然会增加哈希冲突，我们需要在metadata region中存储完整的LBA和FP，这样哈希冲突只会导致一个cache miss而不是数据的丢失（cache miss指的是我虽然前缀是相同的，但实际上整个键是不一样的，但cache中没有，类似于看上去命中了，检查一下原来没有命中，直接miss了）。实际上，如果正确选择前缀的长度哈希冲突的概率会很小。</p>
+<p><strong>写路径</strong> 为了在flash cache中写入一个唯一的chunk，Austere Cache会更新LBA-index和FP-index。对于LBA-index来说它会有LBA-hash的前缀比特（$\log_n k$）来选择它应该放入哪个桶中。选择完毕后会扫描其中的所有slot，查找是否有该LBA-hash的前缀已经被存储了。如果没有被存储，它将把该条目放入到一个空的slot或者如果桶满了就替换掉某个slot。在写入slot时会将LBA-hash prefix(primary key)，FP-hash，和一个valid flag写入。同样地，对于FP-index来说，也会先找到对应的bucket，写入FP-hash prefix(primary key)和valid flag。<br>基于FP-index中桶和slot的位置，AustereCache将会查找到对应metadata region和data region对应的桶和slot的位置。对于metadata region来说，它存放了完整的FP和一对多映射的LBA-list（由于LBA可能非常多，并且假定一个slot只有512 bytes，这里将使用FIFO替换掉旧的LBA）。对于data region来说，会在对应的bucket和slot（也就是CA）中储存chunk。</p>
+<p><strong>deduplication path</strong> 为了能够在一个被写的chunk（通过(LBA, FP)标识）实现deduplication，AustereCache首先在FP-index中查找到对应的桶，再查找对应slot，如果找到了一条数据，再去对应的metadata region查找完整的FP哈希是否与之对应。如果找到了，那么一个duplicate chunk就被找到了（why？可能是因为这个chunk是刚写的？），如果在LBA-list没有出现过，就在该条的list中插入即可。如果完整的FP不相同，说明哈希冲突发生了，AustereCache会将冲突的FP标记为invalid（在metadata region中），并像之前一样写入新的数据。</p>
+<p><strong>read path</strong> 如果想要读一个逻辑块地址为LBA的chunk，首先需要在LBA-index中使用LBA查询FP-hash的前缀，再去FP-index中查询对应的slot，查看LBA是否在对应slot的LBA-list中。如果是的，那么就是一个读命中；否则，就是cache miss，Austere Cache将会从HDD中使用LBA获取这个chunk。</p>
+<p><strong>Analysis</strong> TBC</p>
+<p><strong>Comparisons with other data structures</strong><br>index for each chunk，B+ 和LSM tree需要两次访问flash，但AustereCache只需要访问metadata region一次。</p>
+<h3 id="Fixed-Size-Compressed-Data-Management"><a href="#Fixed-Size-Compressed-Data-Management" class="headerlink" title="Fixed-Size Compressed Data Management"></a>Fixed-Size Compressed Data Management</h3><p>在deduplication后，AustereCache可以压缩所有唯一的chunk。为了避免需要跟踪所有压缩chunk的大小，AustereCache会将一个压缩的chunk分为大小相同的子chunk。例如一个子chunk它的大小是8KB，那么一个15KB的压缩chunk会被分为两个子chunk（最后一个子chunk将会被填充）。<br>AustereCache分配与FP-index(以及flash中的元数据和数据区域)子块相同数量的连续slot来组织一个压缩块的所有子块;注意，lba索引保持不变，它的每个槽仍然引用一个块。<br>对于FP-index来说，每个slot（现在每个slot代表的是一个子块）保存了对应FP的哈希前缀，同样还保存着valid位。对于metadata region来说，它也对应分配了两个slot，第一个slot不仅储存了完整的FP和LBA list，还储存了压缩chunk的总长度，后面的slot可以是空的，这样可以避免多余的flash write。对于data region来说，同样也需要使用与之对应的subchunk来储存数据。注意这并不会造成由于记录压缩块长度引起的内存额外消耗。（因为granularity?）</p>
+<blockquote>
+<p>看到这里，我有个疑问。有没有可能一个桶中放不下连续的子chunk了，那该怎么办？<br>答：会替换掉其他的吧…我猜的…</p>
+</blockquote>
+<p>带有压缩的读写workflow和不带有压缩的是相似的，除了在AustereCache中在FP-index为了一个压缩块查找多个连续的子chunk。注意我们现在仍然让一个桶有128个slot。然而现在一个slot对应了一个较小的subchunk，我们需要更多的桶来标识FP-indx, metadata region和data region。当我们分配更多桶的时候，内存使用会增加，然而Austere Cache相较于大小可变的chunk有内存上的优势。</p>
+<h3 id="Bucket-Based-Cache-Replacement"><a href="#Bucket-Based-Cache-Replacement" class="headerlink" title="Bucket-Based Cache Replacement"></a>Bucket-Based Cache Replacement</h3><p>实现缓存替换通常需要以优先级为基础的数据结构，才能决定cache块是保留还是替换，然而这样的数据结构必然带来内存上的额外开销。AustereCache选择实现以桶为基本单位的替换，这样的替换算法不会有或者说只是带来少量的内存开销（软件层面）。因为每个桶只有128个slot，因此每次替换也不会有过多的性能开销（硬件层面）。<br>对于LBA-index来说，AustereCache实现了一个基于桶的LRU规则：概括一下，就是每个桶实现LRU，每一个桶的lowest offset代表了最近一次使用的slot。每次有更新就是一次移位，这样不会有额外的内存开销。<br>对于FP-index，同时还有metadata和data regions来说，我们会将deduplication awareness和recency awareness两者结合考虑。</p>
+<ul>
+<li>deduplication awareness: AustereCache会跟踪所有FP-hash对应的LBA数。当有一个新的FP要插入已经放满的桶中时，它将会替换掉count最小的那个slot，同时会将对应位置的metadata region slot 和data region slot的有效位置0。<blockquote>
+<p>又有一个问题，因为有subchunk，FP在一个桶中可能出现多次，那么应该替换哪个FP？这样数据不是不完整了吗？<br>和LRU算法不同的是新加入的FP-hash的count数肯定是最小的，说明新加入之后是最有可能被替换的，这样真的好吗？</p>
+</blockquote>
+</li>
+</ul>
+<p>简单的reference counting并没有解决recency的问题。为了能够同时考虑到recency awareness， AustereCache 将每个LBA桶分为了最近访问的slots和老的slots，最近的slots在低offset中，老的slots在高offsets中（这样就被分为了两个部分（？））。每一个位于最近访问的slots中的LBA对于reference counting的贡献是2，old slots reference counting贡献是1。特别地，每一个新加入的LBA都会存入最近的slot，放在LBA-index的最低offset中，因此austereCache将会对对应的fp-hash加2。如果一个LBA从recent slot降级到old slot或者从LBA-index中替换掉了，AustereCache会将对应的TP条目的counting值-1。同样地，如果一个LBA条目升级了，FP条目的counting将+1。</p>
+<p>为所有的FP-hashes保持引用计数将会带来不可避免地内存消耗。AustereCache通过一个Count-Min Sketch解决这个问题，AustereCache可以使用一个固定大小的紧凑的数据结构来跟踪reference counts，并且出错是有限的。一个Count-Min Sketch是一个两位的计数数组，$r$行<br>各有$w$个计数器。它把每个FP-hash映射每行中的一计数器中，并基于上面提到的增加和减少计数来维护它们。AustereCache可以估计一个FP-hash的引用计数使用所有被映射的FP-hash的最小值。错误范围也可以基于$r$和$w$从理论上证明。</p>
+<blockquote>
+<p>然而，维护所有fp哈希的引用计数会带来不可忽略的内存开销。AustereCache通过维护Count-Min Sketch[13]来解决这个问题，它可以跟踪固定大小紧凑数据结构中带有有限错误的引用计数。一个Count-Min Sketch是一个二维计数器数组，包含r行，每个行包含w个计数器(其中r和w是可配置的参数)。它将每个FP-hash(通过一个独立的hash函数)映射到r行的每一行中的一个w计数器，并根据我们的引用计数机制对映射的计数器进行递增或递减。AustereCache可以使用FP-hash的所有映射计数器的最小值来估计FP-hash的引用计数。根据r和w的值，理论上误差界限可以被证明为[13]。</p>
+</blockquote>
+<p>目前，我们的实现将参数将$r$固定为4，$w$为LBA-index中的所有slots。我们将通过一个简单的分析来证明sketch-based reference counting能过节省巨大的内存。</p>
+<p>我们的bucket-based cache replacement设计作用于slot level。通过使用引用计数来做出缓存替换决策，AustereCache可以立即替换任何陈旧的块（也就是没有被LBA引用的）（这是怎么实现的？）。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>我们实现了一个AustereCache的原型，作为一个用户空间块设备在Linux机器上。user-space implementation让我们非常乐意（？）部署高级算法和多线程来提升性能。具体来说，我们的AustereCache原型分别通过pread和pwrite系统调用对底层存储设备进行读写操作。它使用SHA-1对chunk进行加密，…………我们同时还将CacheDedup的cache replacement algo融合进来来进行公平的比较。<br>我们使用多线程来并行解决多个读写请求达到高性能。具体来说，我们实现了桶级别的并发，也就是说每个读、写请求需要获得一个互斥锁，才能获得LBA-index和FP-index中的一个桶的数据。当然多个请求可以同时读写不同的桶。</p>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>我们对AustereCache进行了现实和人工的跟踪。我们考虑了Austere Cache的两个变量：</p>
+<ol>
+<li>AC-D，它完成了deduplication而没有compression</li>
+<li>AC-DC，它完成了deduplication和compression</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Abstract"><span class="toc-number">1.</span> <span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">2.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-number">3.</span> <span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Deduplication-and-Compression"><span class="toc-number">3.1.</span> <span class="toc-text">Deduplication and Compression</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#duplication"><span class="toc-number">3.1.1.</span> <span class="toc-text">duplication</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AustereCache-Design"><span class="toc-number">4.</span> <span class="toc-text">AustereCache Design</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucketization"><span class="toc-number">4.1.</span> <span class="toc-text">Bucketization</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fixed-Size-Compressed-Data-Management"><span class="toc-number">4.2.</span> <span class="toc-text">Fixed-Size Compressed Data Management</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bucket-Based-Cache-Replacement"><span class="toc-number">4.3.</span> <span class="toc-text">Bucket-Based Cache Replacement</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BB%B7"><span class="toc-number">6.</span> <span class="toc-text">评价</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&text=Austere Cache"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&is_video=false&description=Austere Cache"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Austere Cache&body=Check out this article: https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&title=Austere Cache"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&name=Austere Cache&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2022/04/24/%E8%AE%BA%E6%96%87%E9%98%85%E8%AF%BB/Austere-Cache/&t=Austere Cache"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

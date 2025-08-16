@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="A秒切，注意使用long long。 B题目链接本题在比赛时候卡了好久…想的有些复杂了…最后算出来的时间复杂度比给出的答案小一些，但给出的答案写的真的很简单。该题的关键找到操作的基本特征：一个较为小的操作肯定不会有任何一个加法操作在乘法操作之后。可以通过移位来去理解这个特点。后面，我想到了一组有意义的加法操作（能够更接近正确答案的）应该是加上当前数的最低1的数值，下面给出我的解答： 1234567">
+<meta property="og:type" content="article">
+<meta property="og:title" content="round126-div2">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="A秒切，注意使用long long。 B题目链接本题在比赛时候卡了好久…想的有些复杂了…最后算出来的时间复杂度比给出的答案小一些，但给出的答案写的真的很简单。该题的关键找到操作的基本特征：一个较为小的操作肯定不会有任何一个加法操作在乘法操作之后。可以通过移位来去理解这个特点。后面，我想到了一组有意义的加法操作（能够更接近正确答案的）应该是加上当前数的最低1的数值，下面给出我的解答： 1234567">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-03T05:57:04.000Z">
+<meta property="article:modified_time" content="2025-05-03T15:48:17.065Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="codeforces">
+<meta property="article:tag" content="div2">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>round126-div2</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/08/11/C++/C++%E7%9A%84mutex/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/05/03/gem5/%E5%8F%A4%E6%97%A9gem5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&text=round126-div2"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&is_video=false&description=round126-div2"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=round126-div2&body=Check out this article: https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&name=round126-div2&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&t=round126-div2"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#A"><span class="toc-number">1.</span> <span class="toc-text">A</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B"><span class="toc-number">2.</span> <span class="toc-text">B</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C"><span class="toc-number">3.</span> <span class="toc-text">C</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#D"><span class="toc-number">4.</span> <span class="toc-text">D</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        round126-div2
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-05-03T05:57:04.000Z" class="dt-published" itemprop="datePublished">2025-05-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/codeforces/">codeforces</a> › <a class="category-link" href="/categories/codeforces/div2/">div2</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/codeforces/" rel="tag">codeforces</a>, <a class="p-category" href="/tags/div2/" rel="tag">div2</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="A"><a href="#A" class="headerlink" title="A"></a>A</h2><p>秒切，注意使用long long。</p>
+<h2 id="B"><a href="#B" class="headerlink" title="B"></a>B</h2><p><a target="_blank" rel="noopener" href="https://codeforces.com/contest/1661/problem/B">题目链接</a><br>本题在比赛时候卡了好久…想的有些复杂了…最后算出来的时间复杂度比给出的答案小一些，但给出的答案写的真的很简单。<br>该题的关键找到操作的基本特征：一个较为小的操作肯定不会有任何一个加法操作在乘法操作之后。可以通过移位来去理解这个特点。<br>后面，我想到了一组有意义的加法操作（能够更接近正确答案的）应该是加上当前数的最低1的数值，下面给出我的解答：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> mod = <span class="number">32768</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> N = <span class="number">32769</span>;</span><br><span class="line"><span class="type">int</span> n;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">lowbit</span><span class="params">(<span class="type">int</span> x)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x &amp; -x;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> level[N];</span><br><span class="line"><span class="type">int</span> f[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">ifndef</span> ONLINE_JUDGE</span></span><br><span class="line">	<span class="built_in">freopen</span>(<span class="string">&quot;in.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;n);</span><br><span class="line">	<span class="built_in">memset</span>(f, <span class="number">-1</span>, <span class="keyword">sizeof</span> f);</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">0</span>; i &lt; N; ++i) &#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> j = <span class="number">0</span>; j &lt; <span class="number">16</span>; ++j) &#123;</span><br><span class="line">			<span class="keyword">if</span>((<span class="number">1</span> &lt;&lt; j) &amp; i) &#123;</span><br><span class="line">				level[i] = j + <span class="number">1</span>;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	f[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span>(n--) &#123;</span><br><span class="line">		<span class="type">int</span> a;</span><br><span class="line">		<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;a);</span><br><span class="line">		<span class="type">int</span> t = a;</span><br><span class="line">		<span class="keyword">if</span>(f[a] != <span class="number">-1</span>) &#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, f[a]);</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="type">int</span> res = <span class="number">17</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> k = <span class="number">0</span>; k &lt;= <span class="number">16</span>; a += <span class="built_in">lowbit</span>(a)) &#123;</span><br><span class="line">			res = <span class="built_in">min</span>(res, k + <span class="number">16</span> - level[<span class="built_in">lowbit</span>(a)]);</span><br><span class="line">			k += <span class="built_in">lowbit</span>(a);</span><br><span class="line">		&#125;</span><br><span class="line">		f[t] = res;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, res);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，我没有想到在加上一次lowbit(x)之后还需要继续去判断是否还要再加lowbit(x+lowbit(x))，因此当时一直WA。<br>其次，在后面做的时候我忽略了x&#x3D;0的情况，导致一直TLE。<br>虽然这个时间复杂度会较低一些，但实际上直接进行遍历也不会有很大问题，只是常数稍大一些：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> n = readLine()!!.toInt()</span><br><span class="line">    <span class="keyword">val</span> a = readLine()!!.split(<span class="string">&#x27; &#x27;</span>).map &#123; it.toInt() &#125;.toIntArray()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (v <span class="keyword">in</span> a) &#123;</span><br><span class="line">        <span class="keyword">var</span> ans = <span class="number">20</span></span><br><span class="line">        <span class="keyword">for</span> (cntAdd <span class="keyword">in</span> <span class="number">0.</span><span class="number">.15</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (cntMul <span class="keyword">in</span> <span class="number">0.</span><span class="number">.15</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (((v + cntAdd) shl cntMul) % <span class="number">32768</span> == <span class="number">0</span>)</span><br><span class="line">                    ans = minOf(ans, cntAdd + cntMul)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        print(<span class="string">&quot;<span class="variable">$ans</span> &quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>给大佬跪了…大佬的代码永远是这么优雅。</p>
+<h2 id="C"><a href="#C" class="headerlink" title="C"></a>C</h2><p><a target="_blank" rel="noopener" href="https://codeforces.com/contest/1661/problem/C">原题链接</a><br>首先需要判断的问题是：是否树最终需要生长到最初所有树的最大高度？答案是否定的，例如$[1,1,1,1,1,2]$，就是一个反例，因此应该查找的是$\max$和$\max+1$两种情况的最小值。<br>找到一个最小时间就可以使用二分的方法来查找。<br>给出我的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> N = <span class="number">300001</span>;</span><br><span class="line"><span class="type">int</span> a[N], n, t;</span><br><span class="line"><span class="keyword">typedef</span> <span class="type">long</span> <span class="type">long</span> LL;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">ifndef</span> ONLINE_JUDGE</span></span><br><span class="line">	<span class="built_in">freopen</span>(<span class="string">&quot;in.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line">	<span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;t);</span><br><span class="line">	<span class="keyword">while</span>(t--) &#123;</span><br><span class="line">		<span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;n); </span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) <span class="built_in">scanf</span>(<span class="string">&quot;%d&quot;</span>, &amp;a[i]);</span><br><span class="line">		LL mx = *<span class="built_in">max_element</span>(a+<span class="number">1</span>, a+<span class="number">1</span>+n);</span><br><span class="line">		LL res = <span class="number">1e18</span>+<span class="number">1</span>;</span><br><span class="line">		<span class="keyword">for</span>(LL m = mx; m &lt;= mx + <span class="number">1</span>; ++m) &#123;</span><br><span class="line">			LL l = <span class="number">0</span>, r = <span class="number">1e18</span>;</span><br><span class="line">			<span class="keyword">while</span>(l &lt; r) &#123;</span><br><span class="line">				LL mid = (l + r) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">				<span class="comment">// cnt1 -&gt; even, cnt2 -&gt; odd</span></span><br><span class="line">				LL cnt1 = (mid) / <span class="number">2</span>, cnt2 = (mid + <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">				<span class="type">bool</span> flag = <span class="literal">true</span>;</span><br><span class="line">				<span class="keyword">for</span>(<span class="type">int</span> i = <span class="number">1</span>; i &lt;= n; ++i) &#123;</span><br><span class="line">					LL tt = (LL)m - (LL)a[i];</span><br><span class="line">					<span class="keyword">if</span>(tt / <span class="number">2</span> &lt;= cnt1) &#123;</span><br><span class="line">						cnt1 -= tt / <span class="number">2</span>;</span><br><span class="line">						tt = tt % <span class="number">2</span>;	</span><br><span class="line">					&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">						tt -= cnt1 * <span class="number">2</span>;</span><br><span class="line">						cnt1 = <span class="number">0</span>;</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">if</span>(tt &gt; cnt2) &#123;</span><br><span class="line">						flag = <span class="literal">false</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">						cnt2 -= tt;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span>(flag) &#123;</span><br><span class="line">					r = mid;</span><br><span class="line">				&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">					l = mid + <span class="number">1</span>;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			res = <span class="built_in">min</span>(res, l);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%lld &quot;</span>, res);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="D"><a href="#D" class="headerlink" title="D"></a>D</h2><p>我只能想到$O(nk)$的解。下面给出官方网站上的题解。</p>
+<blockquote>
+<p>Let’s solve the problem greedily. But not from the beginning, because if we solve it from the beginning, we can’t be sure what option is more optimal for the next elements (e.g. for the second element it is not clear if we need to add $2$ to it starting our segment from the first position or add $1$ to it starting our segment from the second position). So, let’s solve the problem from right to left, then anything becomes clearer.<br>Actually, let’s operate with the array $b$ and decrease its elements instead of using some other array. Let’s carry some variables: $sum$, $cnt$ and the array $closed$ of length $n$ (along with the answer). The variable $sum$ means the value we need to subtract from the current element from currently existing progressions, $cnt$ is the number of currently existing progressions, and $closed_i$ means the number of progressions that will end at the position $i+1$ (i.e. will not add anything from the position $i$ and further to the left).<br>When we consider the element $i$, firstly let’s fix $sum$ (decrease it by $cnt$). Then, let’s fix $cnt$ (decrease it by $closed_i$). Then, let’s decrease $b_i$ by $sum$, and if it becomes less than or equal to zero, just proceed. Otherwise, the number by which we can decrease the $i$-th element with one progression, equals to $el&#x3D;\min(k,i+1)$ (zero-indexed). Then the number of progressions we need to satisfy this element is $need&#x3D;⌈b_i&#x2F;el⌉$. Let’s add this number to the answer, increase $sum$ by $el⋅need$, increase $cnt$ by $need$, and if $i−el≥0$ then we need to end these progressions somewhere, so let’s add $need$ to $closed_{i−el}$.</p>
+</blockquote>
+<p>第一段比较好懂，按下不表。<br>需要设置三个变量：$sum$，$cnt$，和数组$closed$。我们把一次等差数列的相加称为”一次转化“。<br>$sum$表示的是在当前已经增加的转化操作中，当前元素需要减去的值。<br>$cnt$表示的是循环到该变量，计算出的需要转换的次数。那么对于前一个变量来说，考虑新加入的转化之前，需要考虑前面所有转化导致他变化的值，也就是$sum-cnt$（因为是等差数列）。<br>$closed_i$表示的是在$i+1$时仍然作用的转化，并在$i$处无法作用的转化数量。这个是用于更新当前的$cnt$值，也正是由于该数组，可以让原本的$O(nk)$降至$O(n)$，是典型的空间换时间。<br>实现代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> ONLINE_JUDGE</span></span><br><span class="line">    <span class="built_in">freopen</span>(<span class="string">&quot;in.txt&quot;</span>, <span class="string">&quot;r&quot;</span>, stdin);</span><br><span class="line"><span class="comment">//  freopen(&quot;output.txt&quot;, &quot;w&quot;, stdout);</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> n, k;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">&quot;%d %d&quot;</span>, &amp;n, &amp;k);</span><br><span class="line">    <span class="function">vector&lt;<span class="type">long</span> <span class="type">long</span>&gt; <span class="title">b</span><span class="params">(n)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;it : b) &#123;</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">&quot;%lld&quot;</span>, &amp;it);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function">vector&lt;<span class="type">long</span> <span class="type">long</span>&gt; <span class="title">closed</span><span class="params">(n)</span></span>;</span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> sum = <span class="number">0</span>, cnt = <span class="number">0</span>, ans = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = n - <span class="number">1</span>; i &gt;= <span class="number">0</span>; --i) &#123;</span><br><span class="line">        sum -= cnt;</span><br><span class="line">        cnt -= closed[i];</span><br><span class="line">        b[i] -= sum;</span><br><span class="line">        <span class="keyword">if</span> (b[i] &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> el = <span class="built_in">min</span>(i + <span class="number">1</span>, k);</span><br><span class="line">        <span class="type">long</span> <span class="type">long</span> need = (b[i] + el - <span class="number">1</span>) / el;</span><br><span class="line">        sum += need * el;</span><br><span class="line">        cnt += need;</span><br><span class="line">        ans += need;</span><br><span class="line">        <span class="keyword">if</span> (i - el &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            closed[i - el] += need;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%lld\n&quot;</span>, ans);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#A"><span class="toc-number">1.</span> <span class="toc-text">A</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B"><span class="toc-number">2.</span> <span class="toc-text">B</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C"><span class="toc-number">3.</span> <span class="toc-text">C</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#D"><span class="toc-number">4.</span> <span class="toc-text">D</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&text=round126-div2"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&is_video=false&description=round126-div2"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=round126-div2&body=Check out this article: https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&title=round126-div2"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&name=round126-div2&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/05/03/csp%E9%A2%98%E7%9B%AE%E8%AE%B0%E5%BD%95/round126-div2/&t=round126-div2"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
