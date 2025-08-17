@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="unordered_map的底层数据结构C++的unordered_map是基于开放寻址法或链地址法实现的哈希表结构 链地址法unordered_map 通常采用链地址法解决哈希冲突。通过将哈希表的每个桶（bucket）设计为一个链表，所有哈希值相同的元素都被放置在同一个链表中。 开放地址法开放寻址法不使用链表，而是通过在哈希表中寻找下一个可用的位置来插入冲突的元素。 下一个位置可能就是下一个bu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++的unordered_map">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="unordered_map的底层数据结构C++的unordered_map是基于开放寻址法或链地址法实现的哈希表结构 链地址法unordered_map 通常采用链地址法解决哈希冲突。通过将哈希表的每个桶（bucket）设计为一个链表，所有哈希值相同的元素都被放置在同一个链表中。 开放地址法开放寻址法不使用链表，而是通过在哈希表中寻找下一个可用的位置来插入冲突的元素。 下一个位置可能就是下一个bu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-17T10:43:34.000Z">
+<meta property="article:modified_time" content="2025-08-17T15:09:19.632Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="Algo Diary">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++的unordered_map</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/08/17/C++/C++%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&text=C++的unordered_map"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&is_video=false&description=C++的unordered_map"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的unordered_map&body=Check out this article: https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&name=C++的unordered_map&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&t=C++的unordered_map"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unordered-map%E7%9A%84%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">unordered_map的底层数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E5%9C%B0%E5%9D%80%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">链地址法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%94%BE%E5%9C%B0%E5%9D%80%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">开放地址法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E6%89%A9%E5%B1%95%E5%93%88%E5%B8%8C"><span class="toc-number">1.3.</span> <span class="toc-text">可扩展哈希</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cuckoo%E5%93%88%E5%B8%8C%EF%BC%88%E5%B8%83%E8%B0%B7%E9%B8%9F%E5%93%88%E5%B8%8C%EF%BC%89"><span class="toc-number">1.4.</span> <span class="toc-text">cuckoo哈希（布谷鸟哈希）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%8D%E5%8E%86%E6%97%B6%E5%88%A0%E9%99%A4"><span class="toc-number">2.</span> <span class="toc-text">遍历时删除</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++的unordered_map
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-08-17T10:43:34.000Z" class="dt-published" itemprop="datePublished">2025-08-17</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/C/">C++</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="unordered-map的底层数据结构"><a href="#unordered-map的底层数据结构" class="headerlink" title="unordered_map的底层数据结构"></a>unordered_map的底层数据结构</h2><p>C++的unordered_map是基于<strong>开放寻址法</strong>或<strong>链地址法</strong>实现的哈希表结构</p>
+<h3 id="链地址法"><a href="#链地址法" class="headerlink" title="链地址法"></a>链地址法</h3><p><code>unordered_map</code> 通常采用链地址法解决哈希冲突。通过将哈希表的每个桶（bucket）设计为一个链表，所有哈希值相同的元素都被放置在同一个链表中。</p>
+<h3 id="开放地址法"><a href="#开放地址法" class="headerlink" title="开放地址法"></a>开放地址法</h3><p>开放寻址法不使用链表，而是通过在哈希表中寻找下一个可用的位置来插入冲突的元素。</p>
+<p>下一个位置可能就是下一个bucket。当然，也有可能是使用第二个哈希函数，重新计算得到下一个位置。</p>
+<p>当然，这只是最简单的两种哈希方式。这种在rehash的时候的开销非常大。所以还有其他一些常见的哈希方式。这些一般会在一些对数据读写有更高要求的应用中有需求。比如关系型数据库的哈希索引之类的。</p>
+<h3 id="可扩展哈希"><a href="#可扩展哈希" class="headerlink" title="可扩展哈希"></a>可扩展哈希</h3><p>如果发现某个bucket超过容量了，只会把一个bucket变成两个bucket。不会触发其他bucket的reash。（主要可以参看cmu15445 bustub实现的extendible hash）</p>
+<h3 id="cuckoo哈希（布谷鸟哈希）"><a href="#cuckoo哈希（布谷鸟哈希）" class="headerlink" title="cuckoo哈希（布谷鸟哈希）"></a>cuckoo哈希（布谷鸟哈希）</h3><p>Cuckoo Hashing保证了最坏情况下O(1)的查找时间。他主要使用了两个哈希函数，一个key会放置到其中某一个哈希函数空闲的bucket。如果两个bucket都满了，就会选择pop其中一个bucket。</p>
+<h2 id="遍历时删除"><a href="#遍历时删除" class="headerlink" title="遍历时删除"></a>遍历时删除</h2><p>遍历时一般都会使用自带的迭代器。但是如果在迭代中有删除操作，不能使用迭代器++的方式。erase会返回下一个可用的迭代器。所以直接选用这一迭代器作为下一个即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">correct_deletion_with_iterator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n=== ✅ 方法1: 使用erase返回的迭代器 ===\n&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    std::unordered_map&lt;std::string, <span class="type">int</span>&gt; map = &#123;</span><br><span class="line">        &#123;<span class="string">&quot;apple&quot;</span>, <span class="number">1</span>&#125;, &#123;<span class="string">&quot;banana&quot;</span>, <span class="number">2</span>&#125;, &#123;<span class="string">&quot;cherry&quot;</span>, <span class="number">3</span>&#125;, </span><br><span class="line">        &#123;<span class="string">&quot;date&quot;</span>, <span class="number">4</span>&#125;, &#123;<span class="string">&quot;elderberry&quot;</span>, <span class="number">5</span>&#125;, &#123;<span class="string">&quot;fig&quot;</span>, <span class="number">6</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;删除前: &quot;</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; [key, value] : map) &#123;</span><br><span class="line">        std::cout &lt;&lt; key &lt;&lt; <span class="string">&quot;(&quot;</span> &lt;&lt; value &lt;&lt; <span class="string">&quot;) &quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;删除所有偶数值的元素...\n&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 关键：使用erase返回的迭代器</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> it = map.<span class="built_in">begin</span>(); it != map.<span class="built_in">end</span>(); ) &#123;</span><br><span class="line">        <span class="keyword">if</span> (it-&gt;second % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            std::cout &lt;&lt; <span class="string">&quot;  删除: &quot;</span> &lt;&lt; it-&gt;first &lt;&lt; <span class="string">&quot; -&gt; &quot;</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            it = map.<span class="built_in">erase</span>(it);  <span class="comment">// ✅ erase返回下一个有效迭代器</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ++it;  <span class="comment">// ✅ 只有不删除时才递增迭代器</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;删除后: &quot;</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; [key, value] : map) &#123;</span><br><span class="line">        std::cout &lt;&lt; key &lt;&lt; <span class="string">&quot;(&quot;</span> &lt;&lt; value &lt;&lt; <span class="string">&quot;) &quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unordered-map%E7%9A%84%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">unordered_map的底层数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E5%9C%B0%E5%9D%80%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">链地址法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%94%BE%E5%9C%B0%E5%9D%80%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">开放地址法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E6%89%A9%E5%B1%95%E5%93%88%E5%B8%8C"><span class="toc-number">1.3.</span> <span class="toc-text">可扩展哈希</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cuckoo%E5%93%88%E5%B8%8C%EF%BC%88%E5%B8%83%E8%B0%B7%E9%B8%9F%E5%93%88%E5%B8%8C%EF%BC%89"><span class="toc-number">1.4.</span> <span class="toc-text">cuckoo哈希（布谷鸟哈希）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%8D%E5%8E%86%E6%97%B6%E5%88%A0%E9%99%A4"><span class="toc-number">2.</span> <span class="toc-text">遍历时删除</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&text=C++的unordered_map"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&is_video=false&description=C++的unordered_map"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的unordered_map&body=Check out this article: https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&title=C++的unordered_map"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&name=C++的unordered_map&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/17/C++/C++%E7%9A%84unordered_map/&t=C++的unordered_map"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
