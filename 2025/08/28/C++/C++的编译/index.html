@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="C++从代码文件到程序可以执行主要经过了几个步骤：  预处理； 编译； 汇编； 链接。  预处理生成.i文件。  会替换宏定义内容，比如#define, #ifndef 删除注释代码 导入头文件做替换（是真的把头文件的所有内容都替换，所以内容很多很多）  编译生成.s文件。汇编指令，会检查语法错误问题。 经过词法分析，语法分析，生成中间代码，优化，然后是目标代码的生成（就是指定平台的汇编代码）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++的编译">
+<meta property="og:url" content="https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/index.html">
+<meta property="og:site_name" content="从蓉的博客">
+<meta property="og:description" content="C++从代码文件到程序可以执行主要经过了几个步骤：  预处理； 编译； 汇编； 链接。  预处理生成.i文件。  会替换宏定义内容，比如#define, #ifndef 删除注释代码 导入头文件做替换（是真的把头文件的所有内容都替换，所以内容很多很多）  编译生成.s文件。汇编指令，会检查语法错误问题。 经过词法分析，语法分析，生成中间代码，优化，然后是目标代码的生成（就是指定平台的汇编代码）。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-28T09:56:54.064Z">
+<meta property="article:modified_time" content="2025-08-31T15:48:46.804Z">
+<meta property="article:author" content="从蓉">
+<meta property="article:tag" content="Algo Diary">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++的编译</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/08/17/C++/C++%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&text=C++的编译"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&is_video=false&description=C++的编译"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的编译&body=Check out this article: https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&name=C++的编译&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&t=C++的编译"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91"><span class="toc-number">2.</span> <span class="toc-text">编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%87%E7%BC%96"><span class="toc-number">3.</span> <span class="toc-text">汇编</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ELF%E6%AE%B5-Section-%E4%BF%A1%E6%81%AF"><span class="toc-number">3.1.</span> <span class="toc-text">ELF段(Section)信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">链接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.1.</span> <span class="toc-text">静态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.2.</span> <span class="toc-text">动态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E5%8A%A8%E6%80%81%E5%BA%93"><span class="toc-number">4.3.</span> <span class="toc-text">如何生成一个动态库</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++的编译
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">从蓉</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-08-28T09:56:54.064Z" class="dt-published" itemprop="datePublished">2025-08-28</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/C/">C++</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>C++从代码文件到程序可以执行主要经过了几个步骤：</p>
+<ol>
+<li>预处理；</li>
+<li>编译；</li>
+<li>汇编；</li>
+<li>链接。</li>
+</ol>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>生成.i文件。</p>
+<ol>
+<li>会替换宏定义内容，比如<code>#define</code>, <code>#ifndef</code></li>
+<li>删除注释代码</li>
+<li>导入头文件做替换（是真的把头文件的所有内容都替换，所以内容很多很多）</li>
+</ol>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>生成.s文件。汇编指令，会检查语法错误问题。</p>
+<p>经过词法分析，语法分析，生成中间代码，优化，然后是目标代码的生成（就是指定平台的汇编代码）。</p>
+<h2 id="汇编"><a href="#汇编" class="headerlink" title="汇编"></a>汇编</h2><p>生成的是.o可执行文件。</p>
+<p>汇编中最重要的一个东西就是符号表。可以使用<code>nm</code>指令来查看可执行文件的符号表。程序具体运行时，各种运行函数和访问参数都是靠这张符号表来表示的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">⋊&gt; ~/code_directory nm answer2.o                                                             23:10:52</span><br><span class="line">0000000100000498 T __Z7gcd_resxx</span><br><span class="line">                 U __ZNSt3__113basic_istreamIcNS_11char_traitsIcEEErsERi</span><br><span class="line">                 U __ZNSt3__113basic_istreamIcNS_11char_traitsIcEEErsERx</span><br><span class="line">                 U __ZNSt3__13cinE</span><br><span class="line">0000000100000000 T __mh_execute_header</span><br><span class="line">0000000100000524 T _main</span><br><span class="line">                 U _printf</span><br></pre></td></tr></table></figure>
+<p>每一行包含了符号的地址，符号的类型和符号名称。U代表undefined，这个标志着需要在链接的时候解析。T代表符号在.text段，通常是函数或者代码。还有D：.data，B：.bss，R：.rodata。</p>
+<p>由于我是macOS电脑，所以包含了__mh_executor_header，是动态链接的入口点，未定义符号会在运行时通过动态链接解析，所以如果只是调用了库函数不需要手动链接。</p>
+<h3 id="ELF段-Section-信息"><a href="#ELF段-Section-信息" class="headerlink" title="ELF段(Section)信息"></a>ELF段(Section)信息</h3><p>当然，除了符号表，还有很多重要信息。以linux系统为例，ELF是可执行文件的标准格式，我们可以使用readelf指令来查看可执行文件的基本信息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">readelf -S elf_example</span><br></pre></td></tr></table></figure>
+
+<p><strong>主要段的作用</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>段名</th>
+<th>作用</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>.text</strong></td>
+<td>代码段</td>
+<td>可执行指令</td>
+</tr>
+<tr>
+<td><strong>.data</strong></td>
+<td>已初始化数据段</td>
+<td>初始化的全局&#x2F;静态变量</td>
+</tr>
+<tr>
+<td><strong>.bss</strong></td>
+<td>未初始化数据段</td>
+<td>未初始化的全局&#x2F;静态变量</td>
+</tr>
+<tr>
+<td><strong>.rodata</strong></td>
+<td>只读数据段</td>
+<td>字符串常量、const变量</td>
+</tr>
+<tr>
+<td><strong>.symtab</strong></td>
+<td>符号表</td>
+<td>所有符号信息</td>
+</tr>
+<tr>
+<td><strong>.strtab</strong></td>
+<td>字符串表</td>
+<td>符号名称字符串</td>
+</tr>
+<tr>
+<td><strong>.rel.text</strong></td>
+<td>重定位表</td>
+<td>代码段的重定位信息</td>
+</tr>
+<tr>
+<td>重定位表就是后续需要在链接中找到地址的内容。</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p>将目标文件和库文件进行链接。动态库可以被多个程序链接，链接分为了静态和动态。</p>
+<h3 id="静态链接"><a href="#静态链接" class="headerlink" title="静态链接"></a>静态链接</h3><p>在编译阶段，将所需的库代码直接嵌入到生成的可执行文件中。</p>
+<p>生成的可执行文件是一个完全独立的文件，运行时不需要额外的库文件支持。</p>
+<p>静态链接的指令需要额声明是<code>-static</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ main.cpp -o main -static -L. -lmy_library</span><br></pre></td></tr></table></figure>
+
+<h3 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h3><p>在编译阶段，生成的可执行文件中只包含对库的引用，而不嵌入库代码。库代码在程序运行时由操作系统动态加载。<br>生成的可执行文件依赖外部动态库（如 <code>.dll</code>、<code>.so</code> 文件）。</p>
+<p>动态链接的指令表明了默认链接使用的是动态链接方法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ main.cpp -o main -L. -lmy_library</span><br></pre></td></tr></table></figure>
+
+<p>我们可以总结两种链接方式的优缺点。</p>
+<table>
+<thead>
+<tr>
+<th><strong>特点</strong></th>
+<th><strong>静态链接</strong></th>
+<th><strong>动态链接</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>文件体积</strong></td>
+<td>可执行文件体积较大，库代码嵌入其中。</td>
+<td>可执行文件体积较小，库代码独立存在。</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>每个进程加载独立的库代码，占用更多内存。</td>
+<td>多个进程共享动态库代码，占用内存较少。</td>
+</tr>
+<tr>
+<td><strong>运行时性能</strong></td>
+<td>启动速度快，运行时性能更好。</td>
+<td>启动速度稍慢，运行时性能略低。</td>
+</tr>
+<tr>
+<td><strong>库更新</strong></td>
+<td>无法独立更新库，需重新编译程序。</td>
+<td>库可以独立更新，无需重新编译程序。</td>
+</tr>
+<tr>
+<td><strong>部署复杂度</strong></td>
+<td>部署简单，无需考虑库文件依赖。</td>
+<td>部署复杂，需要确保库文件路径和版本正确。</td>
+</tr>
+<tr>
+<td><strong>调试难度</strong></td>
+<td>调试简单，运行环境固定。</td>
+<td>调试复杂，需考虑动态库路径和符号解析。</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>嵌入式设备、独立分发、对稳定性要求高的场景。</td>
+<td>多程序共享库、插件系统、需要频繁更新的场景。</td>
+</tr>
+</tbody></table>
+<h3 id="如何生成一个动态库"><a href="#如何生成一个动态库" class="headerlink" title="如何生成一个动态库"></a>如何生成一个动态库</h3><p>macOS上的动态库是.dylib, linux上是.so。一般可以使用下面指令进行动态链接的创建：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -shared -fPIC -o libmy_library.so my_library.cpp</span><br></pre></td></tr></table></figure>
+
+<p><code>-fPIC</code>表示的是position independent code，说明动态库使用的地址都是相对地址，方便其他程序动态链接。</p>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>动态库符号表</strong></th>
+<th><strong>可执行文件符号表</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>导出符号</strong></td>
+<td>包含导出的符号，供其他程序使用。</td>
+<td>不导出符号，符号仅供程序自身使用。</td>
+</tr>
+<tr>
+<td><strong>未定义符号</strong></td>
+<td>可能包含未定义符号，依赖其他库解析。</td>
+<td>可能包含未定义符号，依赖动态库解析。</td>
+</tr>
+<tr>
+<td><strong>符号地址</strong></td>
+<td>使用位置无关代码（PIC），地址通常是相对地址。</td>
+<td>地址通常是绝对地址，因为程序加载时地址固定。</td>
+</tr>
+<tr>
+<td><strong>符号可见性控制</strong></td>
+<td>可以通过编译器选项控制符号是否导出。</td>
+<td>符号不可见，无法被其他程序使用。</td>
+</tr>
+<tr>
+<td><strong>运行时作用</strong></td>
+<td>动态库的符号表用于动态链接器解析符号。</td>
+<td>可执行文件的符号表用于解析程序自身的符号。</td>
+</tr>
+<tr>
+<td><strong>对外部的依赖</strong></td>
+<td>动态库可能依赖其他库，符号表中包含依赖的符号信息。</td>
+<td>可执行文件依赖动态库，符号表中包含库的符号引用。</td>
+</tr>
+</tbody></table>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">categories</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">预处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E8%AF%91"><span class="toc-number">2.</span> <span class="toc-text">编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%87%E7%BC%96"><span class="toc-number">3.</span> <span class="toc-text">汇编</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ELF%E6%AE%B5-Section-%E4%BF%A1%E6%81%AF"><span class="toc-number">3.1.</span> <span class="toc-text">ELF段(Section)信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">链接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.1.</span> <span class="toc-text">静态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.2.</span> <span class="toc-text">动态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90%E4%B8%80%E4%B8%AA%E5%8A%A8%E6%80%81%E5%BA%93"><span class="toc-number">4.3.</span> <span class="toc-text">如何生成一个动态库</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&text=C++的编译"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&is_video=false&description=C++的编译"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++的编译&body=Check out this article: https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&title=C++的编译"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&name=C++的编译&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://ccccrrrr.github.io/2025/08/28/C++/C++%E7%9A%84%E7%BC%96%E8%AF%91/&t=C++的编译"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    从蓉
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">categories</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/ccccrrrr">Projects</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
